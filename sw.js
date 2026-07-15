@@ -2,7 +2,7 @@
 const CACHE_NAME = 'zqgy-v2';
 const ASSETS = [
   './',
-  './便捷开单器.html',
+  './index.html',
   './manifest.json',
   './icon.svg'
 ];
@@ -68,7 +68,7 @@ self.addEventListener('fetch', (e) => {
       }).catch(() => {
         // Offline fallback — return the main HTML page for navigation requests
         if (e.request.mode === 'navigate') {
-          return caches.match('./便捷开单器.html');
+          return caches.match('./index.html');
         }
         return new Response('Offline', { status: 503 });
       });

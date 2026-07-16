@@ -2500,23 +2500,32 @@
 
         // ===== Event: Clear =====
         btnClear.addEventListener('click', async function() {
-            const ok = await showConfirm('确定清空所有录入数据？');
+            const ok = await showConfirm('确定清空当前订单的全部录入数据？');
             if (!ok) return;
-            ROWS.forEach(row => { setVal(row,'pieces',''); setVal(row,'weight',''); setVal(row,'price', getRememberedPrice(LABELS[row])); });
+            // 清空香蕉/粉蕉的件数、重量、单价
+            ROWS.forEach(function(row) {
+                setVal(row, 'pieces', '');
+                setVal(row, 'weight', '');
+                setVal(row, 'price', '');
+            });
+            // 清空所有特价勾选
+            document.querySelectorAll('input[type="checkbox"][data-field="special"]').forEach(function(cb) { cb.checked = false; });
+            document.querySelectorAll('input[type="checkbox"][data-field="ospecial"]').forEach(function(cb) { cb.checked = false; });
+            // 重置其他为一行空栏
             generateOtherRows(1);
+            // 清空框费
             document.getElementById('inputLai').value = '';
             document.getElementById('inputQu').value = '';
             document.getElementById('inputLaiCount').value = '';
             document.getElementById('inputQuCount').value = '';
+            // 清空客户名称
             customerInput.value = '';
-            // 清除所有特价勾选
-            document.querySelectorAll('input[type="checkbox"][data-field="special"]').forEach(cb => cb.checked = false);
-            document.querySelectorAll('input[type="checkbox"][data-field="ospecial"]').forEach(cb => cb.checked = false);
+            // 隐藏收据预览
             receiptSection.style.display = 'none';
             saveFormToOrder();
             persistOrders();
             update();
-            showToast('已清空');
+            showToast('已清空当前订单');
         });
 
         // ===== Input listeners =====

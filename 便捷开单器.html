@@ -163,6 +163,11 @@
         .order-tag > span {
             white-space: nowrap;
         }
+        .order-num {
+            font-size: 0.65rem;
+            font-weight: 400;
+            opacity: 0.5;
+        }
         .order-tag:active { background: #e5e7e9; }
         .order-tag.active {
             background: var(--green-light);
@@ -837,55 +842,7 @@
         }
 
         /* ================================================ */
-        /*  SCREENSHOT MODE                                  */
-        /* ================================================ */
-        #screenshotMode {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: #fff;
-            z-index: 9999;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        #screenshotMode.active { display: block; }
-
-        .ss-receipt-wrapper {
-            min-height: 100vh;
-            min-height: 100dvh;
-        }
-        .ss-receipt-wrapper .receipt {
-            width: 100%;
-            min-height: 100vh;
-            min-height: 100dvh;
-            box-shadow: none;
-            border: none;
-            border-radius: 0;
-            padding: calc(env(safe-area-inset-top, 8px) + 20px) 18px 28px;
-            font-size: 0.95rem;
-        }
-        /* Screenshot mode — key info even larger for sharing */
-        .ss-receipt-wrapper .receipt-store-name { font-size: 2.0rem; letter-spacing: 4px; }
-        .ss-receipt-wrapper .receipt-customer { font-size: 1.35rem; }
-        .ss-receipt-wrapper .receipt-code-date { font-size: 0.98rem; }
-        .ss-receipt-wrapper .receipt-table { font-size: 1.02rem; }
-        .ss-receipt-wrapper .receipt-table thead th { font-size: 0.88rem; }
-        .ss-receipt-wrapper .receipt-table .name-col { font-size: 1.1rem; }
-        .ss-receipt-wrapper .receipt-table .amt-col { font-size: 1.06rem; }
-        .ss-receipt-wrapper .receipt-table .total-row td { font-size: 1.2rem; }
-        .ss-receipt-wrapper .receipt-table .basket-info td { font-size: 1.0rem; }
-        .ss-receipt-wrapper .receipt-product-header,
-        .ss-receipt-wrapper .receipt-frame-header { font-size: 0.98rem; padding: 9px 12px; }
-        .ss-receipt-wrapper .receipt-product-total,
-        .ss-receipt-wrapper .receipt-frame-total { font-size: 1.06rem; padding: 9px 12px; }
-        .ss-receipt-wrapper .receipt-grand-total { font-size: 1.5rem; margin-top: 6px; }
-        .ss-receipt-wrapper .receipt-footer { font-size: 0.82rem; }
-        .ss-receipt-wrapper .receipt-footer .footer-phone { font-size: 0.85rem; }
-        .ss-receipt-wrapper .receipt-frame-row { font-size: 1.0rem; padding: 9px 12px; }
-        .ss-receipt-wrapper .receipt-frame-row .frame-detail { font-size: 0.9rem; }
-
-        /* ================================================ */
-        /*  SHARE BUTTONS                                    */
+        /*  SHARE BUTTON                                     */
         /* ================================================ */
         .btn-share {
             display: block;
@@ -906,27 +863,6 @@
             transition: transform 0.1s;
         }
         .btn-share:active { transform: scale(0.98); }
-
-        .ss-share-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 20px;
-            z-index: 10001;
-            background: #25b86f;
-            color: #fff;
-            border: none;
-            border-radius: 50px;
-            padding: 14px 24px;
-            font-size: 1rem;
-            font-weight: 700;
-            font-family: inherit;
-            letter-spacing: 1px;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-            transition: opacity 0.3s, transform 0.15s;
-        }
-        .ss-share-btn:active { transform: scale(0.95); }
-        .ss-share-btn.hidden { opacity: 0; pointer-events: none; }
 
         /* ================================================ */
         /*  TOAST                                            */
@@ -1156,24 +1092,12 @@
 
         <!-- Receipt preview -->
         <div class="receipt-section" id="receiptSection" style="display:none;">
-            <div class="receipt-section-label">▼ 收据预览 · 向下滚动截图 ▼</div>
+            <div class="receipt-section-label">▼ 收据预览 ▼</div>
             <div id="receiptNormal"></div>
-            <button class="btn-generate" id="btnScreenshot" style="margin-top:12px; background:#333;">
-                📸 全屏收据（截图用）
-            </button>
             <button class="btn-share" id="btnShare">
                 📤 转发分享
             </button>
-            <p class="hint-text">点击进入后收据占满全屏，无任何多余文字，截屏即可发给客户。轻点屏幕任意处退出。</p>
         </div>
-    </div>
-
-    <!-- ========== SCREENSHOT MODE ========== -->
-    <div id="screenshotMode">
-        <div class="ss-receipt-wrapper" id="ssReceiptWrapper">
-            <!-- Receipt renders here -->
-        </div>
-        <button class="ss-share-btn" id="ssShareBtn">📤 转发分享</button>
     </div>
 
     <!-- Toast -->
@@ -1203,10 +1127,7 @@
         const receiptNormal = document.getElementById('receiptNormal');
         const receiptSection = document.getElementById('receiptSection');
         const btnGenerate = document.getElementById('btnGenerate');
-        const btnScreenshot = document.getElementById('btnScreenshot');
         const btnClear = document.getElementById('btnClear');
-        const screenshotMode = document.getElementById('screenshotMode');
-        const ssReceiptWrapper = document.getElementById('ssReceiptWrapper');
         const toast = document.getElementById('toast');
         const otherCountEl = document.getElementById('otherCount');
         const otherTbody = document.getElementById('otherTbody');
@@ -1304,7 +1225,7 @@
                     ? '<span class="tag-close" data-delete="' + o.id + '">&times;</span>'
                     : '';
                 html += '<span class="order-tag' + cls + '" data-id="' + o.id + '">' +
-                    '<span>' + (_j + 1) + '. ' + name + '</span>' + closeBtn +
+                    '<span><small class="order-num">' + (_j + 1) + '.</small> ' + name + '</span>' + closeBtn +
                     '</span>';
             }
             container.innerHTML = html;
@@ -2223,30 +2144,9 @@
             }, 100);
         });
 
-        // ===== Event: Screenshot Mode =====
-        btnScreenshot.addEventListener('click', function() {
-            const gt = calcGrandTotal();
-            renderReceipt(ssReceiptWrapper, gt);
-            screenshotMode.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            // Show share button briefly
-            const ssShareBtn = document.getElementById('ssShareBtn');
-            if (ssShareBtn) ssShareBtn.classList.remove('hidden');
-        });
-
-        // ===== Event: Back from screenshot mode (tap anywhere) =====
-        screenshotMode.addEventListener('click', function(e) {
-            // Don't exit when tapping the share button
-            if (e.target.closest('#ssShareBtn')) return;
-            screenshotMode.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-
         // ===== Share Receipt =====
         async function shareReceipt() {
-            // Get the receipt element (prefer screenshot mode, fallback to normal)
-            var receiptEl = document.querySelector('.ss-receipt-wrapper .receipt');
-            if (!receiptEl) receiptEl = document.querySelector('#receiptNormal .receipt');
+            var receiptEl = document.querySelector('#receiptNormal .receipt');
             if (!receiptEl) { showToast('请先生成收据'); return; }
 
             showToast('正在生成图片...');
@@ -2310,14 +2210,6 @@
         var btnShare = document.getElementById('btnShare');
         if (btnShare) {
             btnShare.addEventListener('click', shareReceipt);
-        }
-
-        var ssShareBtn = document.getElementById('ssShareBtn');
-        if (ssShareBtn) {
-            ssShareBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                shareReceipt();
-            });
         }
 
         // ===== Event: Clear =====

@@ -1,0 +1,20 @@
+{
+    "name": "志强果业167号 - 电子票据",
+    "short_name": "志强果业",
+    "description": "便捷电子开单工具",
+    "start_url": "./",
+    "scope": ".",
+    "display": "standalone",
+    "orientation": "portrait",
+    "theme_color": "#1a5632",
+    "background_color": "#eef0f2",
+    "lang": "zh-CN",
+    "icons": [
+        {
+            "src": "icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

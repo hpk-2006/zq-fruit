@@ -1827,12 +1827,15 @@
             cmList.querySelectorAll('.cm-del').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var n = this.getAttribute('data-name');
-                    var list = loadCustomerList();
-                    var idx = list.indexOf(n);
-                    if (idx !== -1) list.splice(idx, 1);
-                    saveCustomerList(list);
-                    CUSTOMER_LIST = loadCustomerList();
-                    renderCustomerManageList();
+                    showConfirm('确定删除客户 "' + n + '"？').then(function(ok) {
+                        if (!ok) return;
+                        var list = loadCustomerList();
+                        var idx = list.indexOf(n);
+                        if (idx !== -1) list.splice(idx, 1);
+                        saveCustomerList(list);
+                        CUSTOMER_LIST = loadCustomerList();
+                        renderCustomerManageList();
+                    });
                 });
             });
 

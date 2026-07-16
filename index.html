@@ -124,6 +124,84 @@
         }
         .wechat-row input::placeholder { color: #bbb; }
 
+        /* ---- Order list (vertical scroll) ---- */
+        .order-list {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            max-height: 172px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #888;
+            border-bottom: 1px solid #f3f4f5;
+            transition: background 0.12s;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .order-item:active { background: #f5f6f7; }
+        .order-item.active {
+            background: var(--green-light);
+            color: var(--green);
+        }
+        .order-item .order-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #d0d3d5;
+            flex-shrink: 0;
+            transition: background 0.15s;
+        }
+        .order-item.active .order-dot {
+            background: var(--green);
+        }
+        .order-item .order-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-width: 0;
+        }
+        .order-item .order-close {
+            font-size: 1.05rem;
+            color: #c5c8ca;
+            cursor: pointer;
+            padding: 0 4px;
+            flex-shrink: 0;
+            line-height: 1;
+            visibility: hidden;
+        }
+        .order-item:hover .order-close,
+        .order-item.active .order-close { visibility: visible; }
+        .order-item .order-close:active { color: var(--red); }
+        .order-add-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--green);
+            cursor: pointer;
+            border-bottom: 1px dashed #e0e0e0;
+            background: #fafbfb;
+            user-select: none;
+            -webkit-user-select: none;
+            position: sticky;
+            top: 0;
+        }
+        .order-add-row:active { background: #eef1ef; }
+
         /* ---- Customer Autocomplete ---- */
         .customer-autocomplete {
             position: relative;
@@ -631,14 +709,92 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* Basket total — below table, right aligned */
-        .receipt-basket-total {
+        /* ---- Product section card in receipt ---- */
+        .receipt-product-section {
+            margin-bottom: 10px;
+            border: 1.5px solid #dde1e4;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .receipt-product-header {
+            background: #f7f8f9;
+            padding: 7px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--green);
+            border-bottom: 1px solid #e8e8e8;
+            letter-spacing: 0.5px;
+        }
+        .receipt-product-section .receipt-table {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        .receipt-product-section .receipt-table thead th {
+            background: #fafbfb;
+        }
+        /* 货品合计 footer bar — matching frame-total style */
+        .receipt-product-total {
+            background: #fafbfb;
+            border-top: 1px solid #e8e8e8;
+            padding: 7px 10px;
             text-align: right;
             font-size: 0.8rem;
             font-weight: 700;
             color: #555;
-            margin-top: 6px;
-            padding-right: 4px;
+        }
+
+        /* ---- Frame section (去框/来框) in receipt ---- */
+        .receipt-frame-section {
+            margin-top: 10px;
+            border: 1.5px solid #dde1e4;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .receipt-frame-header {
+            background: #f7f8f9;
+            padding: 7px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--green);
+            border-bottom: 1px solid #e8e8e8;
+            letter-spacing: 0.5px;
+        }
+        .receipt-frame-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            font-size: 0.78rem;
+            color: #555;
+            font-weight: 500;
+        }
+        .receipt-frame-row + .receipt-frame-row {
+            border-top: 1px solid #f2f3f4;
+        }
+        .receipt-frame-row .frame-label {
+            font-weight: 600;
+        }
+        .receipt-frame-row .frame-detail {
+            color: #888;
+            font-size: 0.73rem;
+        }
+        .receipt-frame-row .frame-amt {
+            font-weight: 700;
+            min-width: 60px;
+            text-align: right;
+        }
+        .receipt-frame-row .frame-amt.negative {
+            color: var(--red);
+        }
+        /* 押筐合计 — at the bottom right of the frame box */
+        .receipt-frame-total {
+            background: #fafbfb;
+            border-top: 1px solid #e8e8e8;
+            padding: 7px 10px;
+            text-align: right;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #555;
         }
         /* Grand total — bottom right */
         .receipt-grand-total {
@@ -816,7 +972,7 @@
         <div class="topbar">
             <span class="topbar-brand">🧾 志强果业167号</span>
             <div class="topbar-controls">
-                <input type="text" class="market-input" id="marketInput" placeholder="市场名称" title="市场名称">
+                <input type="text" class="market-input" id="marketInput" placeholder="市场名称" title="市场前提 · 所有订单共用">
                 <input type="date" class="date-input" id="dateInput" title="调整日期">
             </div>
         </div>
@@ -826,6 +982,10 @@
             <label>📞 手机/微信</label>
             <span class="static-phone">13502273897、13502278223</span>
         </div>
+
+        <!-- Order list — vertical scroll -->
+        <div class="order-list" id="orderList"></div>
+
         <div class="wechat-row">
             <label>👤 客户</label>
             <div class="customer-autocomplete">
@@ -968,6 +1128,176 @@
         const otherTableWrap = document.getElementById('otherTableWrap');
         const otherEmpty = document.getElementById('otherEmpty');
 
+        // ===== Multi-Order Management =====
+        let orders = [];
+        let activeOrderId = null;
+
+        function createOrderId() {
+            return 'ord_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        }
+        function newOrderData() {
+            return {
+                id: createOrderId(),
+                customer: '',
+                date: todayStr(),
+                banana: { pieces: '', weight: '', price: getRememberedPrice('香蕉'), special: false },
+                'pink-banana': { pieces: '', weight: '', price: getRememberedPrice('粉蕉'), special: false },
+                otherCount: '',
+                otherItems: [],
+                lai: '', qu: '', laiCount: '', quCount: ''
+            };
+        }
+        // ===== Remembered prices =====
+        function rememberPrice(name, price) {
+            if (name && price !== null && price !== undefined && price !== '') {
+                localStorage.setItem('zq_price_' + name, price);
+            }
+        }
+        function getRememberedPrice(name) {
+            return localStorage.getItem('zq_price_' + name) || '';
+        }
+
+        function getActiveOrder() {
+            for (var _i = 0; _i < orders.length; _i++) {
+                if (orders[_i].id === activeOrderId) return orders[_i];
+            }
+            return null;
+        }
+        function saveFormToOrder() {
+            var order = getActiveOrder();
+            if (!order) return;
+            ROWS.forEach(function(row) {
+                var spChk = document.querySelector('input[type="checkbox"][data-row="' + row + '"][data-field="special"]');
+                order[row] = { pieces: val(row,'pieces'), weight: val(row,'weight'), price: val(row,'price'), special: spChk ? spChk.checked : false };
+            });
+            order.otherCount = otherCountEl.value;
+            order.otherItems = getOtherItemsRaw();
+            order.lai = document.getElementById('inputLai').value;
+            order.qu = document.getElementById('inputQu').value;
+            order.laiCount = document.getElementById('inputLaiCount').value;
+            order.quCount = document.getElementById('inputQuCount').value;
+            order.customer = customerInput.value;
+            order.date = dateInput.value;
+        }
+        function loadOrderToForm(order) {
+            if (!order) return;
+            ROWS.forEach(function(row) {
+                var d = order[row] || {};
+                setVal(row, 'pieces', d.pieces || '');
+                setVal(row, 'weight', d.weight || '');
+                setVal(row, 'price', d.price || '');
+                var spChk = document.querySelector('input[type="checkbox"][data-row="' + row + '"][data-field="special"]');
+                if (spChk) spChk.checked = !!d.special;
+            });
+            otherCountEl.value = order.otherCount || '';
+            generateOtherRows(parseInt(order.otherCount) || 0);
+            if (order.otherItems) restoreOtherItems(order.otherItems);
+            document.getElementById('inputLai').value = order.lai || '';
+            document.getElementById('inputQu').value = order.qu || '';
+            document.getElementById('inputLaiCount').value = order.laiCount || '';
+            document.getElementById('inputQuCount').value = order.quCount || '';
+            customerInput.value = order.customer || '';
+            dateInput.value = order.date || todayStr();
+        }
+        function persistOrders() {
+            localStorage.setItem('zq_orders', JSON.stringify(orders));
+            localStorage.setItem('zq_activeOrderId', activeOrderId || '');
+        }
+        function getOrderDisplayName(order) {
+            return (order.customer && order.customer.trim()) ? order.customer.trim() : '未命名';
+        }
+        function renderTabs() {
+            var container = document.getElementById('orderList');
+            if (!container) return;
+            var html = '<div class="order-add-row" id="btnAddOrder">＋ 新建订单</div>';
+            for (var _j = 0; _j < orders.length; _j++) {
+                var o = orders[_j];
+                var name = getOrderDisplayName(o);
+                var cls = o.id === activeOrderId ? ' active' : '';
+                var closeBtn = orders.length > 1
+                    ? '<span class="order-close" data-delete="' + o.id + '">&times;</span>'
+                    : '';
+                html += '<div class="order-item' + cls + '" data-id="' + o.id + '">' +
+                    '<span class="order-dot"></span>' +
+                    '<span class="order-name">' + name + '</span>' + closeBtn +
+                    '</div>';
+            }
+            container.innerHTML = html;
+
+            // Bind order item clicks
+            var items = container.querySelectorAll('.order-item');
+            for (var _k = 0; _k < items.length; _k++) {
+                items[_k].addEventListener('click', function(e) {
+                    if (e.target.classList.contains('order-close')) {
+                        e.stopPropagation();
+                        deleteOrder(e.target.getAttribute('data-delete'));
+                        return;
+                    }
+                    switchOrder(this.getAttribute('data-id'));
+                });
+            }
+            // Bind add button
+            var addBtn = container.querySelector('#btnAddOrder');
+            if (addBtn) {
+                addBtn.addEventListener('click', function() { addOrder(); });
+            }
+            // Scroll active into view
+            var activeEl = container.querySelector('.order-item.active');
+            if (activeEl) {
+                setTimeout(function() { activeEl.scrollIntoView({ block: 'nearest' }); }, 50);
+            }
+        }
+        function switchOrder(id) {
+            if (id === activeOrderId) return;
+            saveFormToOrder();
+            activeOrderId = id;
+            var order = getActiveOrder();
+            if (order) loadOrderToForm(order);
+            renderTabs();
+            persistOrders();
+            update();
+        }
+        function addOrder() {
+            saveFormToOrder();
+            var order = newOrderData();
+            orders.push(order);
+            activeOrderId = order.id;
+            loadOrderToForm(order);
+            renderTabs();
+            persistOrders();
+            update();
+            setTimeout(function() {
+                var list = document.getElementById('orderList');
+                if (list) list.scrollTop = list.scrollHeight;
+            }, 100);
+        }
+        function deleteOrder(id) {
+            if (orders.length <= 1) {
+                showToast('至少保留一个订单');
+                return;
+            }
+            var target = null;
+            for (var _n = 0; _n < orders.length; _n++) {
+                if (orders[_n].id === id) { target = orders[_n]; break; }
+            }
+            var name = target ? getOrderDisplayName(target) : '未命名';
+            showConfirm('确定删除订单"' + name + '"？').then(function(ok) {
+                if (!ok) return;
+                var kept = [];
+                for (var _m = 0; _m < orders.length; _m++) {
+                    if (orders[_m].id !== id) kept.push(orders[_m]);
+                }
+                orders = kept;
+                if (activeOrderId === id) {
+                    activeOrderId = orders[orders.length - 1].id;
+                    loadOrderToForm(getActiveOrder());
+                }
+                renderTabs();
+                persistOrders();
+                update();
+            });
+        }
+
         // ===== Date =====
         function todayStr() {
             const d = new Date();
@@ -977,13 +1307,14 @@
             const p = iso.split('-');
             return p[0] + '年' + parseInt(p[1]) + '月' + parseInt(p[2]) + '日';
         }
-        dateInput.value = localStorage.getItem('zq_date') || todayStr();
         dateInput.addEventListener('change', function() {
-            if (this.value === todayStr()) localStorage.removeItem('zq_date');
-            else localStorage.setItem('zq_date', this.value);
+            saveFormToOrder();
+            persistOrders();
+            update();
         });
         // ===== Market name =====
         const marketInput = document.getElementById('marketInput');
+        // Market is a global premise — not per-order
         marketInput.value = localStorage.getItem('zq_market') || '';
         marketInput.addEventListener('input', function() {
             localStorage.setItem('zq_market', this.value.trim());
@@ -1172,16 +1503,13 @@
 
         function selectCustomer(name) {
             customerInput.value = name;
-            localStorage.setItem('zq_customer', name);
             hideDropdown();
             update();
         }
 
         // 初始化客户输入框
-        customerInput.value = localStorage.getItem('zq_customer') || '';
         customerInput.addEventListener('input', function() {
             var val = this.value;
-            localStorage.setItem('zq_customer', val.trim());
             var matches = filterCustomers(val);
             renderDropdown(matches);
             if (matches.length > 0) {
@@ -1371,6 +1699,17 @@
         function selectProduct(name) {
             if (currentProductInput) {
                 currentProductInput.value = name;
+                // Auto-fill remembered price for this product name
+                var remembered = getRememberedPrice(name);
+                if (remembered) {
+                    var tr = currentProductInput.closest('tr');
+                    if (tr) {
+                        var priceInput = tr.querySelector('input[data-field="oprice"]');
+                        if (priceInput && !priceInput.value) {
+                            priceInput.value = remembered;
+                        }
+                    }
+                }
                 currentProductInput.dispatchEvent(new Event('input', { bubbles: true }));
                 currentProductInput.dispatchEvent(new Event('change', { bubbles: true }));
             }
@@ -1389,6 +1728,19 @@
             });
             input.addEventListener('input', function() {
                 var val = this.value;
+                // Auto-fill remembered price when name is entered
+                if (val) {
+                    var remembered = getRememberedPrice(val.trim());
+                    if (remembered) {
+                        var tr = this.closest('tr');
+                        if (tr) {
+                            var priceInput = tr.querySelector('input[data-field="oprice"]');
+                            if (priceInput && !priceInput.value) {
+                                priceInput.value = remembered;
+                            }
+                        }
+                    }
+                }
                 var matches = filterProducts(val);
                 if (!val) {
                     renderProductDropdown(PRODUCT_LIST.slice());
@@ -1448,38 +1800,11 @@
 
         // ===== Data =====
         function saveData() {
-            const data = {};
-            ROWS.forEach(row => {
-                var spChk = document.querySelector(`input[type="checkbox"][data-row="${row}"][data-field="special"]`);
-                data[row] = { pieces: val(row,'pieces'), weight: val(row,'weight'), price: val(row,'price'), special: spChk ? spChk.checked : false };
-            });
-            data._otherCount = otherCountEl.value;
-            data._otherItems = getOtherItemsRaw();
-            data._lai = document.getElementById('inputLai').value;
-            data._qu = document.getElementById('inputQu').value;
-            data._laiCount = document.getElementById('inputLaiCount').value;
-            data._quCount = document.getElementById('inputQuCount').value;
-            localStorage.setItem('zq_data', JSON.stringify(data));
+            saveFormToOrder();
+            persistOrders();
         }
         function loadData() {
-            try {
-                const data = JSON.parse(localStorage.getItem('zq_data')) || {};
-                ROWS.forEach(row => {
-                    const d = data[row] || {};
-                    setVal(row, 'pieces', d.pieces || '');
-                    setVal(row, 'weight', d.weight || '');
-                    setVal(row, 'price', d.price || '');
-                    var spChk = document.querySelector(`input[type="checkbox"][data-row="${row}"][data-field="special"]`);
-                    if (spChk) spChk.checked = !!d.special;
-                });
-                otherCountEl.value = data._otherCount || '';
-                generateOtherRows(parseInt(data._otherCount) || 0);
-                if (data._otherItems) restoreOtherItems(data._otherItems);
-                document.getElementById('inputLai').value = data._lai || '';
-                document.getElementById('inputQu').value = data._qu || '';
-                document.getElementById('inputLaiCount').value = data._laiCount || '';
-                document.getElementById('inputQuCount').value = data._quCount || '';
-            } catch(e) {}
+            // Orders loaded in init – no-op for backward compat
         }
 
         function getOtherItemsRaw() {
@@ -1622,6 +1947,14 @@
             gt = gt - lai + qu;
             grandTotalEl.textContent = '¥' + fmt(gt);
             grandTotalEl.style.color = gt !== 0 ? 'var(--red)' : '#999';
+            // Remember prices for each product
+            ROWS.forEach(function(row) {
+                var p = num(row, 'price');
+                if (p !== null) rememberPrice(LABELS[row], p);
+            });
+            getOtherItems().forEach(function(r) {
+                if (r.name && r.price !== null) rememberPrice(r.name, r.price);
+            });
             saveData();
             if (receiptSection.style.display !== 'none') renderReceipt(receiptNormal, gt);
         }
@@ -1632,8 +1965,8 @@
                                .filter(r => r.weight !== null || r.price !== null || r.pieces !== null);
             const otherItems = getOtherItems().filter(r => r.weight !== null || r.price !== null || r.pieces !== null);
             const dateStr = formatDate(dateInput.value);
-            const customer = (localStorage.getItem('zq_customer') || '').trim();
-            const marketName = (localStorage.getItem('zq_market') || '').trim();
+            const customer = customerInput.value.trim();
+            const marketName = marketInput.value.trim();
 
             // 筐子数据
             const quCount = getGlobalQuCount();
@@ -1691,36 +2024,51 @@
                     </tr>`);
                 });
 
-                // 去框行
-                if (quCount > 0 && quAmt !== 0) {
-                    allRows.push(`<tr class="basket-info">
-                        <td colspan="${totalCols}">去框：${quCount}个（30/个）&emsp;&emsp;+${quAmt.toFixed(2)}</td>
-                    </tr>`);
-                }
-
-                // 来框行
-                if (laiCount > 0 && laiAmt !== 0) {
-                    allRows.push(`<tr class="basket-info">
-                        <td colspan="${totalCols}">来框：${laiCount}个&emsp;&emsp;-${laiAmt.toFixed(2)}</td>
-                    </tr>`);
-                }
-
-                // 货品合计行
-                const labelColspan = totalCols - 1;
-                allRows.push(`<tr class="total-row">
-                    <td colspan="${labelColspan}" class="total-label">货品合计</td>
-                    <td class="total-val">${fmt(fruitTotal)}</td>
-                </tr>`);
+                // 货品合计 — moved to card footer bar, not inside table
+                const fruitTotalFmt = fmt(fruitTotal);
 
                 // 表头
                 const piecesHead = anyPieces ? '<th class="h-center">件数</th>' : '';
                 billHTML = `
-                <table class="receipt-table">
-                    <thead><tr>
-                        <th class="h-left">货品</th>${piecesHead}<th class="h-center">重量</th><th class="h-center">单价</th><th class="h-right">小计</th>
-                    </tr></thead>
-                    <tbody>${allRows.join('')}</tbody>
-                </table>`;
+                <div class="receipt-product-section">
+                    <div class="receipt-product-header">📦 货品明细</div>
+                    <table class="receipt-table">
+                        <thead><tr>
+                            <th class="h-left">货品</th>${piecesHead}<th class="h-center">重量</th><th class="h-center">单价</th><th class="h-right">小计</th>
+                        </tr></thead>
+                        <tbody>${allRows.join('')}</tbody>
+                    </table>
+                    <div class="receipt-product-total">货品合计：${fruitTotalFmt} 元</div>
+                </div>`;
+
+                // 去框/来框 section — clean card with flex rows, 押筐合计 at bottom right
+                let frameHTML = '';
+                if (quCount > 0 || laiCount > 0) {
+                    let frameRows = '';
+                    if (quCount > 0 && quAmt !== 0) {
+                        frameRows += `<div class="receipt-frame-row">
+                            <span class="frame-label">去框</span>
+                            <span class="frame-detail">${quCount}个 × 30</span>
+                            <span class="frame-amt">+${quAmt.toFixed(2)}</span>
+                        </div>`;
+                    }
+                    if (laiCount > 0 && laiAmt !== 0) {
+                        frameRows += `<div class="receipt-frame-row">
+                            <span class="frame-label">来框</span>
+                            <span class="frame-detail">${laiCount}个</span>
+                            <span class="frame-amt">-${laiAmt.toFixed(2)}</span>
+                        </div>`;
+                    }
+                    const basketNet = quAmt - laiAmt;
+                    const sign = basketNet >= 0 ? '+' : '';
+                    frameHTML = `
+                <div class="receipt-frame-section">
+                    <div class="receipt-frame-header">📦 框费明细</div>
+                    ${frameRows}
+                    <div class="receipt-frame-total">押筐合计：${sign}${basketNet.toFixed(2)} 元</div>
+                </div>`;
+                }
+                billHTML += frameHTML;
             }
 
             // 客户行
@@ -1734,14 +2082,6 @@
             // 市场名
             const marketHTML = marketName ? `<div class="receipt-market-name">${marketName}</div>` : '';
 
-            // 押筐合计 = 去框 - 来框
-            const basketNet = quAmt - laiAmt;
-            let basketHTML = '';
-            if (quCount > 0 || laiCount > 0) {
-                const sign = basketNet >= 0 ? '+' : '';
-                basketHTML = `<div class="receipt-basket-total">押筐合计：${sign}${basketNet.toFixed(2)} 元</div>`;
-            }
-
             return `
             <div class="receipt">
                 ${marketHTML}
@@ -1752,11 +2092,10 @@
                 </div>
                 <hr class="receipt-divider">
                 ${billHTML}
-                ${basketHTML}
                 <div class="receipt-grand-total">本单合计：${fmt(gt)} 元</div>
                 <hr class="receipt-divider">
                 <div class="receipt-footer">
-                    地址：志强果业167号 &nbsp; <span class="footer-phone">手机：13502273897</span>
+                    地址：${marketName ? marketName + '-' : ''}志强果业167号 &nbsp; <span class="footer-phone">手机：13502273897</span>
                 </div>
             </div>`;
         }
@@ -1800,7 +2139,7 @@
         btnClear.addEventListener('click', async function() {
             const ok = await showConfirm('确定清空所有录入数据？');
             if (!ok) return;
-            ROWS.forEach(row => { setVal(row,'pieces',''); setVal(row,'weight',''); setVal(row,'price',''); });
+            ROWS.forEach(row => { setVal(row,'pieces',''); setVal(row,'weight',''); setVal(row,'price', getRememberedPrice(LABELS[row])); });
             otherCountEl.value = '';
             generateOtherRows(0);
             document.getElementById('inputLai').value = '';
@@ -1811,9 +2150,9 @@
             // 清除所有特价勾选
             document.querySelectorAll('input[type="checkbox"][data-field="special"]').forEach(cb => cb.checked = false);
             document.querySelectorAll('input[type="checkbox"][data-field="ospecial"]').forEach(cb => cb.checked = false);
-            localStorage.removeItem('zq_customer');
-            localStorage.removeItem('zq_data');
             receiptSection.style.display = 'none';
+            saveFormToOrder();
+            persistOrders();
             update();
             showToast('已清空');
         });
@@ -1896,7 +2235,49 @@
         });
 
         // ===== Init =====
-        loadData();
+        (function initOrders() {
+            var saved = localStorage.getItem('zq_orders');
+            if (saved) {
+                try { orders = JSON.parse(saved); } catch(e) { orders = []; }
+            }
+            // Migrate from old single-order format
+            if (!orders || orders.length === 0) {
+                var oldData = localStorage.getItem('zq_data');
+                var oldCustomer = localStorage.getItem('zq_customer') || '';
+                var oldMarket = localStorage.getItem('zq_market') || '';
+                var oldDate = localStorage.getItem('zq_date') || todayStr();
+                var first = newOrderData();
+                first.customer = oldCustomer;
+                first.date = oldDate;
+                marketInput.value = oldMarket;
+                localStorage.setItem('zq_market', oldMarket);
+                if (oldData) {
+                    try {
+                        var d = JSON.parse(oldData);
+                        ROWS.forEach(function(row) { if (d[row]) first[row] = d[row]; });
+                        first.otherCount = d._otherCount || '';
+                        first.otherItems = d._otherItems || [];
+                        first.lai = d._lai || '';
+                        first.qu = d._qu || '';
+                        first.laiCount = d._laiCount || '';
+                        first.quCount = d._quCount || '';
+                    } catch(e) {}
+                }
+                orders = [first];
+                // Clean up old keys
+                localStorage.removeItem('zq_data');
+                localStorage.removeItem('zq_customer');
+                localStorage.removeItem('zq_market');
+                localStorage.removeItem('zq_date');
+            }
+            activeOrderId = localStorage.getItem('zq_activeOrderId');
+            if (!activeOrderId || !getActiveOrder()) {
+                activeOrderId = orders[0].id;
+            }
+            loadOrderToForm(getActiveOrder());
+            persistOrders();
+            renderTabs();
+        })();
         update();
     })();
     </script>

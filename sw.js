@@ -1,8 +1,8 @@
 // Service Worker for 志强果业167号 - Offline billing tool
-const CACHE_NAME = 'zqgy-v3';
+const CACHE_NAME = 'zqgy-v2';
 const ASSETS = [
   './',
-  './index.html',
+  './便捷开单器.html',
   './manifest.json',
   './icon.svg'
 ];
@@ -68,7 +68,7 @@ self.addEventListener('fetch', (e) => {
       }).catch(() => {
         // Offline fallback — return the main HTML page for navigation requests
         if (e.request.mode === 'navigate') {
-          return caches.match('./index.html');
+          return caches.match('./便捷开单器.html');
         }
         return new Response('Offline', { status: 503 });
       });

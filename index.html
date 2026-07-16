@@ -126,48 +126,37 @@
         }
         .wechat-row input::placeholder { color: #bbb; }
 
-        /* ---- Order bar (scrollable tags + fixed new button) ---- */
+        /* ---- Order grid (3 columns, wrap downward) ---- */
         .order-bar {
-            display: flex;
-            align-items: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 6px;
             flex: 1;
             min-width: 0;
         }
-        .order-tags-scroll {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            overflow-x: auto;
-            flex: 1;
-            min-width: 0;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            padding: 2px 0;
-        }
-        .order-tags-scroll::-webkit-scrollbar { display: none; }
         .order-tag {
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            padding: 5px 10px;
+            padding: 6px 10px;
             background: #f0f2f3;
             color: #888;
             border-radius: 16px;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
             user-select: none;
             -webkit-user-select: none;
             transition: background 0.12s, color 0.12s;
-            max-width: 140px;
-            flex-shrink: 0;
+            min-width: 0;
         }
         .order-tag > span {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            flex: 1;
+            min-width: 0;
         }
         .order-tag:active { background: #e5e7e9; }
         .order-tag.active {
@@ -183,13 +172,11 @@
         }
         .order-tag.active .tag-close { opacity: 0.65; }
         .order-tag .tag-close:active { opacity: 1; color: var(--red); }
-        .order-add-inline {
+        .order-grid-btn {
             display: inline-flex;
             align-items: center;
-            padding: 5px 12px;
-            background: transparent;
-            color: var(--green);
-            border: 1.5px dashed var(--green);
+            justify-content: center;
+            padding: 6px 10px;
             border-radius: 16px;
             font-size: 0.8rem;
             font-weight: 600;
@@ -197,9 +184,20 @@
             white-space: nowrap;
             font-family: inherit;
             transition: background 0.12s;
-            flex-shrink: 0;
+            border: none;
         }
-        .order-add-inline:active { background: #eaf5ed; }
+        .order-grid-btn.add-btn {
+            background: transparent;
+            color: var(--green);
+            border: 1.5px dashed var(--green);
+        }
+        .order-grid-btn.add-btn:active { background: #eaf5ed; }
+        .order-grid-btn.clear-all-btn {
+            background: transparent;
+            color: #c0392b;
+            border: 1.5px dashed #e0c0c0;
+        }
+        .order-grid-btn.clear-all-btn:active { background: #fdf0f0; }
 
         /* ---- Customer Autocomplete ---- */
         .customer-autocomplete {
@@ -1052,13 +1050,10 @@
             <span class="static-phone">13502273897、13502278223</span>
         </div>
 
-        <!-- Order bar — scrollable tags + fixed new button -->
+        <!-- Order grid — 3 columns wrapping downward -->
         <div class="wechat-row">
             <label>📋 订单</label>
-            <div class="order-bar" id="orderBar">
-                <div class="order-tags-scroll" id="orderTagsScroll"></div>
-                <button class="order-add-inline" id="btnAddOrder">＋ 新建</button>
-            </div>
+            <div class="order-bar" id="orderBar"></div>
         </div>
 
         <div class="wechat-row">
@@ -1286,9 +1281,10 @@
             return (order.customer && order.customer.trim()) ? order.customer.trim() : '未命名';
         }
         function renderTabs() {
-            var container = document.getElementById('orderTagsScroll');
+            var container = document.getElementById('orderBar');
             if (!container) return;
             var html = '';
+            // Order tags with sequential numbers
             for (var _j = 0; _j < orders.length; _j++) {
                 var o = orders[_j];
                 var name = getOrderDisplayName(o);
@@ -1300,6 +1296,9 @@
                     '<span>' + (_j + 1) + '. ' + name + '</span>' + closeBtn +
                     '</span>';
             }
+            // Action buttons in the grid
+            html += '<button class="order-grid-btn add-btn" id="btnAddOrder">＋ 新建</button>';
+            html += '<button class="order-grid-btn clear-all-btn" id="btnClearAll">🗑 全清除</button>';
             container.innerHTML = html;
 
             // Bind order tag clicks
@@ -1314,10 +1313,15 @@
                     switchOrder(this.getAttribute('data-id'));
                 });
             }
-            // Scroll active tag into view
-            var activeEl = container.querySelector('.order-tag.active');
-            if (activeEl) {
-                setTimeout(function() { activeEl.scrollIntoView({ block: 'nearest', inline: 'center' }); }, 50);
+            // Bind add button
+            var addBtn = container.querySelector('#btnAddOrder');
+            if (addBtn) {
+                addBtn.addEventListener('click', function() { addOrder(); });
+            }
+            // Bind clear-all button
+            var clearBtn = container.querySelector('#btnClearAll');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() { clearAllOrders(); });
             }
         }
         function switchOrder(id) {
@@ -1329,6 +1333,37 @@
             renderTabs();
             persistOrders();
             update();
+        }
+        function clearAllOrders() {
+            if (orders.length <= 1) {
+                showToast('没有可删除的订单');
+                return;
+            }
+            showConfirm('确定删除全部 ' + orders.length + ' 个订单？此操作不可恢复。').then(function(ok) {
+                if (!ok) return;
+                // Keep only the first order, reset it
+                var first = orders[0];
+                first.customer = '';
+                first.date = '';
+                first.market = '';
+                for (var key in first.rows) {
+                    if (first.rows.hasOwnProperty(key)) {
+                        first.rows[key] = { pieces: '', weight: '', price: '', special: false };
+                    }
+                }
+                first.otherItems = [];
+                first.lai = '';
+                first.qu = '';
+                first.laiCount = '';
+                first.quCount = '';
+                orders = [first];
+                activeOrderId = first.id;
+                loadOrderToForm(first);
+                renderTabs();
+                persistOrders();
+                update();
+                showToast('已清除全部订单');
+            });
         }
         function addOrder() {
             saveFormToOrder();
@@ -2429,11 +2464,6 @@
             loadOrderToForm(getActiveOrder());
             persistOrders();
             renderTabs();
-            // Bind static add-order button
-            var addOrderBtn = document.getElementById('btnAddOrder');
-            if (addOrderBtn) {
-                addOrderBtn.addEventListener('click', function() { addOrder(); });
-            }
         })();
         update();
     })();

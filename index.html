@@ -2151,20 +2151,45 @@
 
             showToast('正在生成图片...');
 
-            try {
-                // Capture receipt as image using html2canvas
-                var canvas = await html2canvas(receiptEl, {
-                    scale: 2,
+            // Helper: capture receipt and make phone-friendly canvas
+            async function captureReceipt() {
+                // Capture receipt at 2x resolution
+                var rawCanvas = await html2canvas(receiptEl, {
+                    scale: 3,
                     useCORS: true,
                     backgroundColor: '#ffffff',
                     logging: false
                 });
 
-                // Convert to blob
+                // Build a phone-friendly canvas with 9:16 aspect ratio
+                var W = rawCanvas.width;                      // ~1080px at 3x
+                var minH = Math.round(W * 16 / 9);            // 9:16 minimum height
+                var pad = 16;                                 // white padding
+                var contentH = rawCanvas.height + pad * 2;
+                var H = Math.max(minH, contentH);
+
+                var canvas = document.createElement('canvas');
+                canvas.width = W;
+                canvas.height = H;
+                var ctx = canvas.getContext('2d');
+
+                // White background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, W, H);
+
+                // Draw receipt centered horizontally, with top padding
+                var topY = Math.round((H - rawCanvas.height) / 2);
+                if (topY < pad) topY = pad;
+                ctx.drawImage(rawCanvas, 0, topY);
+
+                return canvas;
+            }
+
+            try {
+                var canvas = await captureReceipt();
                 var blob = await new Promise(function(resolve) { canvas.toBlob(resolve, 'image/png'); });
                 var file = new File([blob], '收据_志强果业167号.png', { type: 'image/png' });
 
-                // Try Web Share API
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         files: [file],
@@ -2172,20 +2197,13 @@
                     });
                     showToast('已分享');
                 } else {
-                    // Fallback: download image
                     downloadImage(blob);
                 }
             } catch (err) {
-                if (err && err.name === 'AbortError') return; // user cancelled
+                if (err && err.name === 'AbortError') return;
                 console.error('Share failed:', err);
-                // Fallback: try to download
                 try {
-                    var canvas2 = await html2canvas(receiptEl, {
-                        scale: 2,
-                        useCORS: true,
-                        backgroundColor: '#ffffff',
-                        logging: false
-                    });
+                    var canvas2 = await captureReceipt();
                     var blob2 = await new Promise(function(resolve) { canvas2.toBlob(resolve, 'image/png'); });
                     downloadImage(blob2);
                 } catch (e2) {

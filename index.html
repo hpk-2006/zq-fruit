@@ -13,6 +13,7 @@
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icon.svg">
     <title>志强果业167号 - 电子票据</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root {
             --green: #1a5632;
@@ -884,6 +885,50 @@
         .ss-receipt-wrapper .receipt-frame-row .frame-detail { font-size: 0.9rem; }
 
         /* ================================================ */
+        /*  SHARE BUTTONS                                    */
+        /* ================================================ */
+        .btn-share {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #25b86f;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: inherit;
+            letter-spacing: 2px;
+            cursor: pointer;
+            min-height: 52px;
+            margin-top: 8px;
+            box-shadow: 0 2px 8px rgba(37,184,111,0.25);
+            transition: transform 0.1s;
+        }
+        .btn-share:active { transform: scale(0.98); }
+
+        .ss-share-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            z-index: 10001;
+            background: #25b86f;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            transition: opacity 0.3s, transform 0.15s;
+        }
+        .ss-share-btn:active { transform: scale(0.95); }
+        .ss-share-btn.hidden { opacity: 0; pointer-events: none; }
+
+        /* ================================================ */
         /*  TOAST                                            */
         /* ================================================ */
         .toast {
@@ -1107,6 +1152,9 @@
             <button class="btn-generate" id="btnScreenshot" style="margin-top:12px; background:#333;">
                 📸 全屏收据（截图用）
             </button>
+            <button class="btn-share" id="btnShare">
+                📤 转发分享
+            </button>
             <p class="hint-text">点击进入后收据占满全屏，无任何多余文字，截屏即可发给客户。轻点屏幕任意处退出。</p>
         </div>
     </div>
@@ -1116,6 +1164,7 @@
         <div class="ss-receipt-wrapper" id="ssReceiptWrapper">
             <!-- Receipt renders here -->
         </div>
+        <button class="ss-share-btn" id="ssShareBtn">📤 转发分享</button>
     </div>
 
     <!-- Toast -->
@@ -2154,13 +2203,96 @@
             renderReceipt(ssReceiptWrapper, gt);
             screenshotMode.classList.add('active');
             document.body.style.overflow = 'hidden';
+            // Show share button briefly
+            const ssShareBtn = document.getElementById('ssShareBtn');
+            if (ssShareBtn) ssShareBtn.classList.remove('hidden');
         });
 
         // ===== Event: Back from screenshot mode (tap anywhere) =====
-        screenshotMode.addEventListener('click', function() {
+        screenshotMode.addEventListener('click', function(e) {
+            // Don't exit when tapping the share button
+            if (e.target.closest('#ssShareBtn')) return;
             screenshotMode.classList.remove('active');
             document.body.style.overflow = '';
         });
+
+        // ===== Share Receipt =====
+        async function shareReceipt() {
+            // Get the receipt element (prefer screenshot mode, fallback to normal)
+            var receiptEl = document.querySelector('.ss-receipt-wrapper .receipt');
+            if (!receiptEl) receiptEl = document.querySelector('#receiptNormal .receipt');
+            if (!receiptEl) { showToast('请先生成收据'); return; }
+
+            showToast('正在生成图片...');
+
+            try {
+                // Capture receipt as image using html2canvas
+                var canvas = await html2canvas(receiptEl, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                });
+
+                // Convert to blob
+                var blob = await new Promise(function(resolve) { canvas.toBlob(resolve, 'image/png'); });
+                var file = new File([blob], '收据_志强果业167号.png', { type: 'image/png' });
+
+                // Try Web Share API
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: '志强果业167号 - 收据'
+                    });
+                    showToast('已分享');
+                } else {
+                    // Fallback: download image
+                    downloadImage(blob);
+                }
+            } catch (err) {
+                if (err && err.name === 'AbortError') return; // user cancelled
+                console.error('Share failed:', err);
+                // Fallback: try to download
+                try {
+                    var canvas2 = await html2canvas(receiptEl, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        logging: false
+                    });
+                    var blob2 = await new Promise(function(resolve) { canvas2.toBlob(resolve, 'image/png'); });
+                    downloadImage(blob2);
+                } catch (e2) {
+                    showToast('分享失败，请截图分享');
+                }
+            }
+        }
+
+        function downloadImage(blob) {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = '收据_志强果业167号.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+            showToast('图片已保存到相册');
+        }
+
+        // ===== Event: Share buttons =====
+        var btnShare = document.getElementById('btnShare');
+        if (btnShare) {
+            btnShare.addEventListener('click', shareReceipt);
+        }
+
+        var ssShareBtn = document.getElementById('ssShareBtn');
+        if (ssShareBtn) {
+            ssShareBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                shareReceipt();
+            });
+        }
 
         // ===== Event: Clear =====
         btnClear.addEventListener('click', async function() {

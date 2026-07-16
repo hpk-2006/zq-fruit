@@ -126,7 +126,17 @@
         }
         .wechat-row input::placeholder { color: #bbb; }
 
-        /* ---- Order grid (3 columns, wrap downward) ---- */
+        /* ---- Order area (buttons fixed top, tags grid below) ---- */
+        .order-area {
+            flex: 1;
+            min-width: 0;
+        }
+        .order-btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
         .order-bar {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -1050,10 +1060,16 @@
             <span class="static-phone">13502273897、13502278223</span>
         </div>
 
-        <!-- Order grid — 3 columns wrapping downward -->
+        <!-- Order area — buttons fixed top, orders grid below -->
         <div class="wechat-row">
             <label>📋 订单</label>
-            <div class="order-bar" id="orderBar"></div>
+            <div class="order-area">
+                <div class="order-btn-row">
+                    <button class="order-grid-btn add-btn" id="btnAddOrder">＋ 新建</button>
+                    <button class="order-grid-btn clear-all-btn" id="btnClearAll">🗑 全清除</button>
+                </div>
+                <div class="order-bar" id="orderBar"></div>
+            </div>
         </div>
 
         <div class="wechat-row">
@@ -1284,7 +1300,7 @@
             var container = document.getElementById('orderBar');
             if (!container) return;
             var html = '';
-            // Order tags with sequential numbers
+            // Order tags with sequential numbers (start from row 2, row 1 is buttons)
             for (var _j = 0; _j < orders.length; _j++) {
                 var o = orders[_j];
                 var name = getOrderDisplayName(o);
@@ -1296,9 +1312,6 @@
                     '<span>' + (_j + 1) + '. ' + name + '</span>' + closeBtn +
                     '</span>';
             }
-            // Action buttons in the grid
-            html += '<button class="order-grid-btn add-btn" id="btnAddOrder">＋ 新建</button>';
-            html += '<button class="order-grid-btn clear-all-btn" id="btnClearAll">🗑 全清除</button>';
             container.innerHTML = html;
 
             // Bind order tag clicks
@@ -1312,16 +1325,6 @@
                     }
                     switchOrder(this.getAttribute('data-id'));
                 });
-            }
-            // Bind add button
-            var addBtn = container.querySelector('#btnAddOrder');
-            if (addBtn) {
-                addBtn.addEventListener('click', function() { addOrder(); });
-            }
-            // Bind clear-all button
-            var clearBtn = container.querySelector('#btnClearAll');
-            if (clearBtn) {
-                clearBtn.addEventListener('click', function() { clearAllOrders(); });
             }
         }
         function switchOrder(id) {
@@ -2464,6 +2467,11 @@
             loadOrderToForm(getActiveOrder());
             persistOrders();
             renderTabs();
+            // Bind static action buttons (always at top of order area)
+            var addOrderBtn = document.getElementById('btnAddOrder');
+            if (addOrderBtn) addOrderBtn.addEventListener('click', function() { addOrder(); });
+            var clearAllBtn = document.getElementById('btnClearAll');
+            if (clearAllBtn) clearAllBtn.addEventListener('click', function() { clearAllOrders(); });
         })();
         update();
     })();

@@ -209,6 +209,44 @@
         }
         .order-grid-btn.clear-all-btn:active { background: #fdf0f0; }
 
+        .other-add-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            background: transparent;
+            color: var(--green);
+            border: 1.5px dashed var(--green);
+            border-radius: 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+            margin-left: auto;
+            transition: background 0.12s;
+        }
+        .other-add-btn:active { background: #eaf5ed; }
+
+        .other-del-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            background: transparent;
+            color: #ccc;
+            border: none;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: inherit;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.12s, background 0.12s;
+        }
+        .other-del-btn:hover { color: var(--red); background: #fdf0f0; }
+        .other-del-btn:active { color: var(--red); background: #fde8e8; }
+
         /* ---- Customer Autocomplete ---- */
         .customer-autocomplete {
             position: relative;
@@ -1045,20 +1083,16 @@
         <div class="input-card" id="card-other">
             <div class="input-card-header">
                 <span class="icon">📦</span>其他
-                <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:8px;">
-                    种数 <input type="number" id="otherCount" min="0" max="20" placeholder="0" inputmode="numeric"
-                           style="width:48px;height:30px;padding:2px 4px;border:1.5px solid var(--border);border-radius:6px;font-size:0.85rem;text-align:center;font-family:inherit;">
-                </span>
+                <button class="other-add-btn" id="btnAddOther">＋ 加一种</button>
             </div>
-            <div id="otherTableWrap" style="display:none;">
+            <div id="otherTableWrap">
                 <table class="card-table" id="otherTable">
                     <thead><tr>
-                        <th>件数</th><th>名称</th><th>重量（斤）</th><th>单价（元/斤）</th><th class="th-special">特价</th><th class="th-amt">小记</th>
+                        <th>件数</th><th>名称</th><th>重量（斤）</th><th>单价（元/斤）</th><th class="th-special">特价</th><th class="th-amt">小记</th><th></th>
                     </tr></thead>
                     <tbody id="otherTbody"></tbody>
                 </table>
             </div>
-            <div id="otherEmpty" style="text-align:center;color:#bbb;font-size:0.8rem;padding:8px;">输入种数后出现对应栏目</div>
             <ul class="product-dropdown" id="productDropdown"></ul>
         </div>
 
@@ -1118,7 +1152,7 @@
     (function() {
         const ROWS = ['banana', 'pink-banana'];
         const LABELS = { 'banana': '香蕉', 'pink-banana': '粉蕉' };
-        const MAX_OTHER = 20;
+        const MAX_OTHER = 15;
 
         // ===== DOM =====
         const dateInput = document.getElementById('dateInput');
@@ -1129,10 +1163,7 @@
         const btnGenerate = document.getElementById('btnGenerate');
         const btnClear = document.getElementById('btnClear');
         const toast = document.getElementById('toast');
-        const otherCountEl = document.getElementById('otherCount');
         const otherTbody = document.getElementById('otherTbody');
-        const otherTableWrap = document.getElementById('otherTableWrap');
-        const otherEmpty = document.getElementById('otherEmpty');
 
         // ===== Multi-Order Management =====
         let orders = [];
@@ -1148,7 +1179,6 @@
                 date: todayStr(),
                 banana: { pieces: '', weight: '', price: getRememberedPrice('香蕉'), special: false },
                 'pink-banana': { pieces: '', weight: '', price: getRememberedPrice('粉蕉'), special: false },
-                otherCount: '',
                 otherItems: [],
                 lai: '', qu: '', laiCount: '', quCount: ''
             };
@@ -1176,7 +1206,6 @@
                 var spChk = document.querySelector('input[type="checkbox"][data-row="' + row + '"][data-field="special"]');
                 order[row] = { pieces: val(row,'pieces'), weight: val(row,'weight'), price: val(row,'price'), special: spChk ? spChk.checked : false };
             });
-            order.otherCount = otherCountEl.value;
             order.otherItems = getOtherItemsRaw();
             order.lai = document.getElementById('inputLai').value;
             order.qu = document.getElementById('inputQu').value;
@@ -1195,8 +1224,8 @@
                 var spChk = document.querySelector('input[type="checkbox"][data-row="' + row + '"][data-field="special"]');
                 if (spChk) spChk.checked = !!d.special;
             });
-            otherCountEl.value = order.otherCount || '';
-            generateOtherRows(parseInt(order.otherCount) || 0);
+            var itemCount = (order.otherItems && order.otherItems.length) || 1;
+            generateOtherRows(itemCount);
             if (order.otherItems) restoreOtherItems(order.otherItems);
             document.getElementById('inputLai').value = order.lai || '';
             document.getElementById('inputQu').value = order.qu || '';
@@ -1862,35 +1891,62 @@
         }
 
         // ===== Other dynamic rows =====
+        function createOtherRowHTML(i) {
+            return `<td><input type="number" step="1" min="0" data-field="opieces" data-oidx="${i}" placeholder="0" inputmode="numeric"></td>` +
+                `<td><input type="text" data-field="oname" data-oidx="${i}" placeholder="品名"></td>` +
+                `<td><input type="number" step="0.1" min="0" data-field="oweight" data-oidx="${i}" placeholder="0" inputmode="decimal"></td>` +
+                `<td><input type="number" step="0.01" min="0" data-field="oprice" data-oidx="${i}" placeholder="0.00" inputmode="decimal"></td>` +
+                `<td><label class="special-chk-wrap"><input type="checkbox" data-field="ospecial" data-oidx="${i}"><span class="chk-box"></span></label></td>` +
+                `<td><span class="result empty" id="res-amt-other-${i}">-</span></td>` +
+                `<td><button class="other-del-btn" data-oidx="${i}" title="删除此行">×</button></td>`;
+        }
         function generateOtherRows(count) {
-            count = Math.max(0, Math.min(count, MAX_OTHER));
+            count = Math.max(1, Math.min(count, MAX_OTHER));
             otherTbody.innerHTML = '';
-            if (count === 0) {
-                otherTableWrap.style.display = 'none';
-                otherEmpty.style.display = 'block';
-                return;
-            }
-            otherTableWrap.style.display = '';
-            otherEmpty.style.display = 'none';
-            for (let i = 0; i < count; i++) {
-                const tr = document.createElement('tr');
-                tr.setAttribute('data-other-idx', i);
-                tr.innerHTML =
-                    `<td><input type="number" step="1" min="0" data-field="opieces" data-oidx="${i}" placeholder="0" inputmode="numeric"></td>` +
-                    `<td><input type="text" data-field="oname" data-oidx="${i}" placeholder="品名"></td>` +
-                    `<td><input type="number" step="0.1" min="0" data-field="oweight" data-oidx="${i}" placeholder="0" inputmode="decimal"></td>` +
-                    `<td><input type="number" step="0.01" min="0" data-field="oprice" data-oidx="${i}" placeholder="0.00" inputmode="decimal"></td>` +
-                    `<td><label class="special-chk-wrap"><input type="checkbox" data-field="ospecial" data-oidx="${i}"><span class="chk-box"></span></label></td>` +
-                    `<td><span class="result empty" id="res-amt-other-${i}">-</span></td>`;
+            for (var _oi = 0; _oi < count; _oi++) {
+                var tr = document.createElement('tr');
+                tr.setAttribute('data-other-idx', _oi);
+                tr.innerHTML = createOtherRowHTML(_oi);
                 otherTbody.appendChild(tr);
             }
-            // Bind listeners
-            otherTbody.querySelectorAll('input').forEach(inp => {
+            bindOtherRowEvents();
+        }
+        function addOtherRow() {
+            var current = otherTbody.querySelectorAll('tr[data-other-idx]').length;
+            if (current >= MAX_OTHER) { showToast('最多 ' + MAX_OTHER + ' 种'); return; }
+            var idx = 0;
+            // Find next available index
+            var used = {};
+            otherTbody.querySelectorAll('tr[data-other-idx]').forEach(function(tr) {
+                used[parseInt(tr.getAttribute('data-other-idx'))] = true;
+            });
+            while (used[idx]) idx++;
+            var tr = document.createElement('tr');
+            tr.setAttribute('data-other-idx', idx);
+            tr.innerHTML = createOtherRowHTML(idx);
+            otherTbody.appendChild(tr);
+            bindOtherRowEvents();
+            update();
+        }
+        function deleteOtherRow(idx) {
+            var rows = otherTbody.querySelectorAll('tr[data-other-idx]');
+            if (rows.length <= 1) { showToast('至少保留一种'); return; }
+            var tr = otherTbody.querySelector('tr[data-other-idx="' + idx + '"]');
+            if (tr) { tr.remove(); update(); }
+        }
+        function bindOtherRowEvents() {
+            otherTbody.querySelectorAll('input').forEach(function(inp) {
                 inp.addEventListener('input', update);
                 inp.addEventListener('change', update);
                 if (inp.getAttribute('data-field') === 'oname') {
                     bindProductAutocomplete(inp);
                 }
+            });
+            otherTbody.querySelectorAll('.other-del-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    deleteOtherRow(parseInt(this.getAttribute('data-oidx')));
+                });
             });
         }
 
@@ -2235,8 +2291,7 @@
             const ok = await showConfirm('确定清空所有录入数据？');
             if (!ok) return;
             ROWS.forEach(row => { setVal(row,'pieces',''); setVal(row,'weight',''); setVal(row,'price', getRememberedPrice(LABELS[row])); });
-            otherCountEl.value = '';
-            generateOtherRows(0);
+            generateOtherRows(1);
             document.getElementById('inputLai').value = '';
             document.getElementById('inputQu').value = '';
             document.getElementById('inputLaiCount').value = '';
@@ -2281,14 +2336,11 @@
             document.getElementById('inputQu').value = cnt > 0 ? (cnt * 30).toFixed(2) : '';
             update();
         });
-        otherCountEl.addEventListener('input', function() {
-            generateOtherRows(parseInt(this.value) || 0);
-            update();
-        });
-        otherCountEl.addEventListener('change', function() {
-            generateOtherRows(parseInt(this.value) || 0);
-            update();
-        });
+        // ===== Add Other Row Button =====
+        var btnAddOther = document.getElementById('btnAddOther');
+        if (btnAddOther) {
+            btnAddOther.addEventListener('click', function() { addOtherRow(); });
+        }
 
         // ===== Toast =====
         let toastTimer;

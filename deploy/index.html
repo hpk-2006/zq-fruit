@@ -126,83 +126,68 @@
         }
         .wechat-row input::placeholder { color: #bbb; }
 
-        /* ---- Order list (vertical scroll) ---- */
-        .order-list {
-            background: #fff;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-            max-height: 172px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .order-item {
+        /* ---- Order bar (inline chips, like wechat-row) ---- */
+        .order-bar {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 12px;
-            font-size: 0.85rem;
+            gap: 6px;
+            flex: 1;
+            flex-wrap: wrap;
+            min-width: 0;
+        }
+        .order-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 5px 10px;
+            background: #f0f2f3;
+            color: #888;
+            border-radius: 16px;
+            font-size: 0.82rem;
             font-weight: 600;
             cursor: pointer;
-            color: #888;
-            border-bottom: 1px solid #f3f4f5;
-            transition: background 0.12s;
+            white-space: nowrap;
             user-select: none;
             -webkit-user-select: none;
+            transition: background 0.12s, color 0.12s;
+            max-width: 140px;
         }
-        .order-item:active { background: #f5f6f7; }
-        .order-item.active {
-            background: var(--green-light);
-            color: var(--green);
-        }
-        .order-item .order-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #d0d3d5;
-            flex-shrink: 0;
-            transition: background 0.15s;
-        }
-        .order-item.active .order-dot {
-            background: var(--green);
-        }
-        .order-item .order-name {
-            flex: 1;
+        .order-tag > span {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            min-width: 0;
         }
-        .order-item .order-close {
-            font-size: 1.05rem;
-            color: #c5c8ca;
-            cursor: pointer;
-            padding: 0 4px;
-            flex-shrink: 0;
-            line-height: 1;
-            visibility: hidden;
-        }
-        .order-item:hover .order-close,
-        .order-item.active .order-close { visibility: visible; }
-        .order-item .order-close:active { color: var(--red); }
-        .order-add-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            padding: 10px 12px;
-            font-size: 0.82rem;
-            font-weight: 600;
+        .order-tag:active { background: #e5e7e9; }
+        .order-tag.active {
+            background: var(--green-light);
             color: var(--green);
-            cursor: pointer;
-            border-bottom: 1px dashed #e0e0e0;
-            background: #fafbfb;
-            user-select: none;
-            -webkit-user-select: none;
-            position: sticky;
-            top: 0;
         }
-        .order-add-row:active { background: #eef1ef; }
+        .order-tag .tag-close {
+            font-size: 0.9rem;
+            opacity: 0.4;
+            margin-left: 1px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .order-tag.active .tag-close { opacity: 0.65; }
+        .order-tag .tag-close:active { opacity: 1; color: var(--red); }
+        .order-add-inline {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            background: transparent;
+            color: var(--green);
+            border: 1.5px dashed var(--green);
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+            transition: background 0.12s;
+            flex-shrink: 0;
+        }
+        .order-add-inline:active { background: #eaf5ed; }
 
         /* ---- Customer Autocomplete ---- */
         .customer-autocomplete {
@@ -1055,8 +1040,11 @@
             <span class="static-phone">13502273897、13502278223</span>
         </div>
 
-        <!-- Order list — vertical scroll -->
-        <div class="order-list" id="orderList"></div>
+        <!-- Order bar — inline tags -->
+        <div class="wechat-row">
+            <label>📋 订单</label>
+            <div class="order-bar" id="orderBar"></div>
+        </div>
 
         <div class="wechat-row">
             <label>👤 客户</label>
@@ -1283,28 +1271,28 @@
             return (order.customer && order.customer.trim()) ? order.customer.trim() : '未命名';
         }
         function renderTabs() {
-            var container = document.getElementById('orderList');
+            var container = document.getElementById('orderBar');
             if (!container) return;
-            var html = '<div class="order-add-row" id="btnAddOrder">＋ 新建订单</div>';
+            var html = '';
             for (var _j = 0; _j < orders.length; _j++) {
                 var o = orders[_j];
                 var name = getOrderDisplayName(o);
                 var cls = o.id === activeOrderId ? ' active' : '';
                 var closeBtn = orders.length > 1
-                    ? '<span class="order-close" data-delete="' + o.id + '">&times;</span>'
+                    ? '<span class="tag-close" data-delete="' + o.id + '">&times;</span>'
                     : '';
-                html += '<div class="order-item' + cls + '" data-id="' + o.id + '">' +
-                    '<span class="order-dot"></span>' +
-                    '<span class="order-name">' + name + '</span>' + closeBtn +
-                    '</div>';
+                html += '<span class="order-tag' + cls + '" data-id="' + o.id + '">' +
+                    '<span>' + (_j + 1) + '. ' + name + '</span>' + closeBtn +
+                    '</span>';
             }
+            html += '<button class="order-add-inline" id="btnAddOrder">＋ 新建</button>';
             container.innerHTML = html;
 
-            // Bind order item clicks
-            var items = container.querySelectorAll('.order-item');
-            for (var _k = 0; _k < items.length; _k++) {
-                items[_k].addEventListener('click', function(e) {
-                    if (e.target.classList.contains('order-close')) {
+            // Bind order tag clicks
+            var tags = container.querySelectorAll('.order-tag');
+            for (var _k = 0; _k < tags.length; _k++) {
+                tags[_k].addEventListener('click', function(e) {
+                    if (e.target.classList.contains('tag-close')) {
                         e.stopPropagation();
                         deleteOrder(e.target.getAttribute('data-delete'));
                         return;
@@ -1316,11 +1304,6 @@
             var addBtn = container.querySelector('#btnAddOrder');
             if (addBtn) {
                 addBtn.addEventListener('click', function() { addOrder(); });
-            }
-            // Scroll active into view
-            var activeEl = container.querySelector('.order-item.active');
-            if (activeEl) {
-                setTimeout(function() { activeEl.scrollIntoView({ block: 'nearest' }); }, 50);
             }
         }
         function switchOrder(id) {
@@ -1342,10 +1325,6 @@
             renderTabs();
             persistOrders();
             update();
-            setTimeout(function() {
-                var list = document.getElementById('orderList');
-                if (list) list.scrollTop = list.scrollHeight;
-            }, 100);
         }
         function deleteOrder(id) {
             if (orders.length <= 1) {

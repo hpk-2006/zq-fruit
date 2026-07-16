@@ -324,11 +324,34 @@
             color: #333;
             border-bottom: 1px solid #f5f5f5;
         }
+        .cm-item .cm-name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .cm-actions {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+        .cm-sort-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 0.65rem;
+            cursor: pointer;
+            padding: 4px 5px;
+            line-height: 1;
+        }
+        .cm-sort-btn:active { color: var(--green); }
         .cm-item .cm-del {
             background: none;
             border: none;
             color: #ccc;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
             padding: 4px 8px;
         }
@@ -1518,31 +1541,18 @@
         ];
 
         function loadCustomerList() {
-            var saved = localStorage.getItem('zq_customer_extra');
-            var extras = saved ? JSON.parse(saved) : [];
-            // Merge defaults + extras, deduplicate, sort
-            var merged = CUSTOMER_DEFAULTS.slice();
-            for (var ei = 0; ei < extras.length; ei++) {
-                if (merged.indexOf(extras[ei]) === -1) merged.push(extras[ei]);
+            var saved = localStorage.getItem('zq_customer_list');
+            if (saved) {
+                try { return JSON.parse(saved); } catch(e) {}
             }
-            merged.sort(function(a, b) {
-                // Chinese names after alphanumeric
-                var aIsCN = /^[一-鿿]/.test(a);
-                var bIsCN = /^[一-鿿]/.test(b);
-                if (aIsCN && !bIsCN) return 1;
-                if (!aIsCN && bIsCN) return -1;
-                return a.localeCompare(b, 'zh-CN');
-            });
-            return merged;
+            // First time: initialize from defaults
+            var list = CUSTOMER_DEFAULTS.slice();
+            saveCustomerList(list);
+            return list;
         }
 
-        function saveExtraCustomers(extras) {
-            localStorage.setItem('zq_customer_extra', JSON.stringify(extras));
-        }
-
-        function getExtraCustomers() {
-            var saved = localStorage.getItem('zq_customer_extra');
-            return saved ? JSON.parse(saved) : [];
+        function saveCustomerList(list) {
+            localStorage.setItem('zq_customer_list', JSON.stringify(list));
         }
 
         var CUSTOMER_LIST = loadCustomerList();
@@ -1794,17 +1804,21 @@
 
         function renderCustomerManageList() {
             var list = loadCustomerList();
-            var extras = getExtraCustomers();
             var html = '';
             for (var ci = 0; ci < list.length; ci++) {
                 var name = list[ci];
-                var isExtra = extras.indexOf(name) !== -1;
-                var delBtn = isExtra
-                    ? '<button class="cm-del" data-name="' + name + '">×</button>'
-                    : '<span style="color:#ddd;font-size:0.7rem;">默认</span>';
+                var upBtn = ci > 0
+                    ? '<button class="cm-sort-btn cm-up" data-idx="' + ci + '">▲</button>'
+                    : '<span class="cm-sort-btn cm-up" style="visibility:hidden">▲</span>';
+                var downBtn = ci < list.length - 1
+                    ? '<button class="cm-sort-btn cm-down" data-idx="' + ci + '">▼</button>'
+                    : '<span class="cm-sort-btn cm-down" style="visibility:hidden">▼</span>';
                 html += '<div class="cm-item">' +
-                    '<span>' + (ci + 1) + '. ' + name + '</span>' +
-                    delBtn +
+                    '<span class="cm-name">' + (ci + 1) + '. ' + name + '</span>' +
+                    '<span class="cm-actions">' +
+                        upBtn + downBtn +
+                        '<button class="cm-del" data-name="' + name + '">×</button>' +
+                    '</span>' +
                     '</div>';
             }
             cmList.innerHTML = html;
@@ -1813,10 +1827,38 @@
             cmList.querySelectorAll('.cm-del').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var n = this.getAttribute('data-name');
-                    var extras = getExtraCustomers();
-                    var idx = extras.indexOf(n);
-                    if (idx !== -1) extras.splice(idx, 1);
-                    saveExtraCustomers(extras);
+                    var list = loadCustomerList();
+                    var idx = list.indexOf(n);
+                    if (idx !== -1) list.splice(idx, 1);
+                    saveCustomerList(list);
+                    CUSTOMER_LIST = loadCustomerList();
+                    renderCustomerManageList();
+                });
+            });
+
+            // Bind sort up buttons
+            cmList.querySelectorAll('.cm-up').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var idx = parseInt(this.getAttribute('data-idx'));
+                    if (idx <= 0) return;
+                    var list = loadCustomerList();
+                    var item = list.splice(idx, 1)[0];
+                    list.splice(idx - 1, 0, item);
+                    saveCustomerList(list);
+                    CUSTOMER_LIST = loadCustomerList();
+                    renderCustomerManageList();
+                });
+            });
+
+            // Bind sort down buttons
+            cmList.querySelectorAll('.cm-down').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var idx = parseInt(this.getAttribute('data-idx'));
+                    var list = loadCustomerList();
+                    if (idx >= list.length - 1) return;
+                    var item = list.splice(idx, 1)[0];
+                    list.splice(idx + 1, 0, item);
+                    saveCustomerList(list);
                     CUSTOMER_LIST = loadCustomerList();
                     renderCustomerManageList();
                 });
@@ -1838,14 +1880,13 @@
             if (e.target === cmOverlay) cmOverlay.classList.remove('show');
         });
 
-        function addExtraCustomer() {
+        function addCustomer() {
             var name = cmNewName.value.trim();
             if (!name) { showToast('请输入客户名称'); return; }
             var list = loadCustomerList();
             if (list.indexOf(name) !== -1) { showToast('该客户已存在'); return; }
-            var extras = getExtraCustomers();
-            extras.push(name);
-            saveExtraCustomers(extras);
+            list.push(name);
+            saveCustomerList(list);
             CUSTOMER_LIST = loadCustomerList();
             cmNewName.value = '';
             renderCustomerManageList();
@@ -1853,9 +1894,9 @@
             showToast('已添加: ' + name);
         }
 
-        cmAddBtn.addEventListener('click', addExtraCustomer);
+        cmAddBtn.addEventListener('click', addCustomer);
         cmNewName.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); addExtraCustomer(); }
+            if (e.key === 'Enter') { e.preventDefault(); addCustomer(); }
         });
 
         // ===== Product Name Autocomplete (shared dropdown for "其他" section) =====

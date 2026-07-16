@@ -73,6 +73,17 @@
             align-items: center;
             gap: 6px;
         }
+        .market-input {
+            padding: 0 8px;
+            border: 1.5px solid var(--border);
+            border-radius: 7px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            background: #fff;
+            color: var(--text);
+            height: 42px;
+            width: 100px;
+        }
         .date-input {
             padding: 0 8px;
             border: 1.5px solid var(--border);
@@ -347,16 +358,23 @@
         .card-table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
+            table-layout: auto;
         }
         .card-table thead th {
             font-size: 0.78rem;
             font-weight: 600;
             color: var(--text-secondary);
             text-align: center;
-            padding: 0 2px 4px;
+            padding: 0 4px 4px;
             letter-spacing: 0.3px;
             line-height: 1.2;
+            white-space: nowrap;
+        }
+        .card-table thead th.th-special {
+            width: 42px;
+        }
+        .card-table thead th.th-amt {
+            width: 80px;
         }
         .card-table .label-col {
             font-size: 0.78rem;
@@ -506,82 +524,51 @@
             box-shadow: 0 2px 16px rgba(0,0,0,0.1);
             border: 1px solid #e8e8e8;
         }
+        /* Market name — smallest, centered */
+        .receipt-market-name {
+            text-align: center;
+            font-size: 0.68rem;
+            color: #999;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+        /* Store name — large bold centered */
         .receipt-store-name {
             text-align: center;
             font-size: 1.5rem;
             font-weight: 800;
             color: var(--green);
             letter-spacing: 3px;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
-        .receipt-date {
-            text-align: left;
-            font-size: 0.9rem;
-            color: #555;
+        /* Info row: customer left, code+date right */
+        .receipt-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 2px;
-            font-weight: 500;
         }
         .receipt-customer {
-            text-align: left;
             font-size: 1.05rem;
-            color: #111;
-            margin-top: 2px;
             font-weight: 700;
-        }
-        .receipt-wechat {
+            color: #111;
             text-align: left;
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 4px;
+        }
+        .receipt-code-date {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #555;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .receipt-code-date .code-num {
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
         .receipt-divider {
             border: none;
             border-top: 1px dashed #d0d0d0;
-            margin: 14px 0;
-        }
-
-        /* QR + WeChat */
-        .receipt-contact {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .receipt-qr { text-align: center; }
-        .receipt-qr img {
-            width: 180px;
-            height: 180px;
-            object-fit: contain;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            display: block;
-            margin: 0 auto;
-        }
-        .receipt-qr .qr-label {
-            font-size: 0.68rem;
-            color: #999;
-            margin-top: 4px;
-        }
-        .receipt-qr-placeholder {
-            width: 110px;
-            height: 110px;
-            border: 1px dashed #ddd;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.55rem;
-            color: #bbb;
-            text-align: center;
-            line-height: 1.2;
-            margin: 0 auto;
-        }
-        .receipt-wechat {
-            font-size: 0.8rem;
-            color: #888;
-            text-align: center;
-            width: 100%;
+            margin: 12px 0;
         }
 
         /* Receipt table */
@@ -590,49 +577,97 @@
             border-collapse: collapse;
             margin-top: 4px;
             font-size: 0.8rem;
+            table-layout: fixed;
         }
         .receipt-table thead th {
             background: #f5f5f5;
-            padding: 7px 4px;
-            text-align: center;
+            padding: 7px 6px;
             font-weight: 700;
             border-bottom: 2px solid #ddd;
             font-size: 0.7rem;
             color: #555;
             white-space: nowrap;
         }
+        .receipt-table thead th.h-left { text-align: left; padding-left: 8px; }
+        .receipt-table thead th.h-center { text-align: center; }
+        .receipt-table thead th.h-right { text-align: right; padding-right: 8px; }
         .receipt-table tbody td {
-            padding: 8px 4px;
+            padding: 8px 6px;
             text-align: center;
             border-bottom: 1px solid #eee;
+            vertical-align: middle;
         }
-        .receipt-table .name-col { font-weight: 700; color: var(--green); }
-        .receipt-table tfoot td {
-            font-size: 0.85rem;
+        .receipt-table .name-col {
+            font-weight: 700;
+            color: var(--green);
+            text-align: left;
+            padding-left: 8px;
+        }
+        .receipt-table .num-col { text-align: center; }
+        .receipt-table .amt-col { text-align: right; padding-right: 8px; font-weight: 700; }
+        .receipt-table .price-wrap { display: inline-block; }
+        .receipt-table .price-wrap .special-badge {
+            display: block;
+            font-size: 0.55rem;
+            line-height: 1;
+            margin-top: 1px;
         }
         .receipt-table .total-row td {
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             border-top: 2px solid #ddd;
             border-bottom: none;
-            padding-top: 10px;
+            padding: 10px 4px;
         }
-        .receipt-table .grand-total-val {
-            color: var(--red);
+        .receipt-table .total-row .total-label { text-align: right; padding-right: 10px; }
+        .receipt-table .total-row .total-val { text-align: right; padding-right: 8px; }
+        /* Basket info row */
+        .receipt-table .basket-info td {
+            text-align: left;
+            padding: 8px 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Basket total — below table, right aligned */
+        .receipt-basket-total {
+            text-align: right;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #555;
+            margin-top: 6px;
+            padding-right: 4px;
+        }
+        /* Grand total — bottom right */
+        .receipt-grand-total {
+            text-align: right;
             font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--red);
+            margin-top: 2px;
+            padding-right: 4px;
         }
-        .receipt-empty {
-            text-align: center;
-            color: #ccc;
-            padding: 24px 0;
-            font-size: 0.85rem;
-        }
+        /* Footer — address + phone at bottom */
         .receipt-footer {
             text-align: center;
             font-size: 0.68rem;
             color: #bbb;
             margin-top: 12px;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+        }
+        .receipt-footer .footer-phone {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #999;
+        }
+
+        .receipt-empty {
+            text-align: center;
+            color: #ccc;
+            padding: 24px 0;
+            font-size: 0.85rem;
         }
 
         .hint-text {
@@ -706,8 +741,8 @@
             .special-chk-wrap .chk-box { height: 38px; width: 24px; }
             .receipt { padding: 20px 12px 14px; }
             .receipt-store-name { font-size: 1.2rem; letter-spacing: 2px; }
-            .receipt-contact { gap: 10px; }
-            .receipt-qr img { width: 140px; height: 140px; }
+            .receipt-customer { font-size: 0.9rem; }
+            .receipt-code-date { font-size: 0.7rem; }
             .card-table .label-col { font-size: 0.6rem; }
         }
         /* ================================================ */
@@ -781,6 +816,7 @@
         <div class="topbar">
             <span class="topbar-brand">🧾 志强果业167号</span>
             <div class="topbar-controls">
+                <input type="text" class="market-input" id="marketInput" placeholder="市场名称" title="市场名称">
                 <input type="date" class="date-input" id="dateInput" title="调整日期">
             </div>
         </div>
@@ -805,13 +841,12 @@
                 <span class="pieces-inline">件数 <input type="number" step="1" min="0" placeholder="0" data-row="banana" data-field="pieces" inputmode="numeric"></span>
             </div>
             <table class="card-table"><thead><tr>
-                <th>重量（斤）</th><th>单价（元/斤）</th><th>特价</th><th>金额-蕉</th><th>总和</th>
+                <th>重量（斤）</th><th>单价（元/斤）</th><th class="th-special">特价</th><th class="th-amt">小记</th>
             </tr></thead><tbody><tr>
                 <td><input type="number" step="0.1" min="0" placeholder="0" data-row="banana" data-field="weight" inputmode="decimal"></td>
                 <td><input type="number" step="0.01" min="0" placeholder="0.00" data-row="banana" data-field="price" inputmode="decimal"></td>
                 <td><label class="special-chk-wrap"><input type="checkbox" data-row="banana" data-field="special"><span class="chk-box"></span></label></td>
                 <td><span class="result empty" id="res-amt-banana">-</span></td>
-                <td><span class="result empty" id="res-sum-banana">-</span></td>
             </tr></tbody></table>
         </div>
 
@@ -821,13 +856,12 @@
                 <span class="pieces-inline">件数 <input type="number" step="1" min="0" placeholder="0" data-row="pink-banana" data-field="pieces" inputmode="numeric"></span>
             </div>
             <table class="card-table"><thead><tr>
-                <th>重量（斤）</th><th>单价（元/斤）</th><th>特价</th><th>金额-蕉</th><th>总和</th>
+                <th>重量（斤）</th><th>单价（元/斤）</th><th class="th-special">特价</th><th class="th-amt">小记</th>
             </tr></thead><tbody><tr>
                 <td><input type="number" step="0.1" min="0" placeholder="0" data-row="pink-banana" data-field="weight" inputmode="decimal"></td>
                 <td><input type="number" step="0.01" min="0" placeholder="0.00" data-row="pink-banana" data-field="price" inputmode="decimal"></td>
                 <td><label class="special-chk-wrap"><input type="checkbox" data-row="pink-banana" data-field="special"><span class="chk-box"></span></label></td>
                 <td><span class="result empty" id="res-amt-pink-banana">-</span></td>
-                <td><span class="result empty" id="res-sum-pink-banana">-</span></td>
             </tr></tbody></table>
         </div>
 
@@ -842,7 +876,7 @@
             <div id="otherTableWrap" style="display:none;">
                 <table class="card-table" id="otherTable">
                     <thead><tr>
-                        <th>件数</th><th>名称</th><th>重量（斤）</th><th>单价（元/斤）</th><th>特价</th><th>金额</th><th>总和</th>
+                        <th>件数</th><th>名称</th><th>重量（斤）</th><th>单价（元/斤）</th><th class="th-special">特价</th><th class="th-amt">小记</th>
                     </tr></thead>
                     <tbody id="otherTbody"></tbody>
                 </table>
@@ -948,6 +982,18 @@
             if (this.value === todayStr()) localStorage.removeItem('zq_date');
             else localStorage.setItem('zq_date', this.value);
         });
+        // ===== Market name =====
+        const marketInput = document.getElementById('marketInput');
+        marketInput.value = localStorage.getItem('zq_market') || '';
+        marketInput.addEventListener('input', function() {
+            localStorage.setItem('zq_market', this.value.trim());
+            update();
+        });
+        marketInput.addEventListener('change', function() {
+            localStorage.setItem('zq_market', this.value.trim());
+            update();
+        });
+
         // ===== Customer Autocomplete =====
         // ★ 在此数组中添加/修改客户名称（支持中文、英文、数字）
         var CUSTOMER_LIST = [
@@ -1487,8 +1533,7 @@
                     `<td><input type="number" step="0.1" min="0" data-field="oweight" data-oidx="${i}" placeholder="0" inputmode="decimal"></td>` +
                     `<td><input type="number" step="0.01" min="0" data-field="oprice" data-oidx="${i}" placeholder="0.00" inputmode="decimal"></td>` +
                     `<td><label class="special-chk-wrap"><input type="checkbox" data-field="ospecial" data-oidx="${i}"><span class="chk-box"></span></label></td>` +
-                    `<td><span class="result empty" id="res-amt-other-${i}">-</span></td>` +
-                    `<td><span class="result empty" id="res-sum-other-${i}">-</span></td>`;
+                    `<td><span class="result empty" id="res-amt-other-${i}">-</span></td>`;
                 otherTbody.appendChild(tr);
             }
             // Bind listeners
@@ -1559,11 +1604,9 @@
             // Fixed products
             ROWS.forEach(row => {
                 const r = calc(row);
-                ['amt','sum'].forEach(k => {
-                    const el = document.getElementById(`res-${k}-${row}`);
-                    if (el) { el.textContent = fmt(r[k]); el.className = 'result' + (r[k] === null ? ' empty' : ''); }
-                });
-                if (r.sum !== null) gt += r.sum;
+                const el = document.getElementById(`res-amt-${row}`);
+                if (el) { el.textContent = fmt(r.amt); el.className = 'result' + (r.amt === null ? ' empty' : ''); }
+                if (r.amt !== null) gt += r.amt;
             });
             // Other items
             const otherRows = otherTbody.querySelectorAll('tr[data-other-idx]');
@@ -1571,10 +1614,8 @@
                 const idx = parseInt(tr.getAttribute('data-other-idx'));
                 const r = calcOtherItem(idx);
                 const amtEl = document.getElementById('res-amt-other-' + idx);
-                const sumEl = document.getElementById('res-sum-other-' + idx);
                 if (amtEl) { amtEl.textContent = fmt(r.amt); amtEl.className = 'result' + (r.amt === null ? ' empty' : ''); }
-                if (sumEl) { sumEl.textContent = fmt(r.sum); sumEl.className = 'result' + (r.sum === null ? ' empty' : ''); }
-                if (r.sum !== null) gt += r.sum;
+                if (r.amt !== null) gt += r.amt;
             });
             const lai = getGlobalLai();
             const qu = getGlobalQu();
@@ -1590,76 +1631,133 @@
             const fixedRows = ROWS.map(row => ({ label: LABELS[row], ...calc(row) }))
                                .filter(r => r.weight !== null || r.price !== null || r.pieces !== null);
             const otherItems = getOtherItems().filter(r => r.weight !== null || r.price !== null || r.pieces !== null);
-            const anyPieces = fixedRows.some(r => r.pieces !== null) || otherItems.some(r => r.pieces !== null);
             const dateStr = formatDate(dateInput.value);
             const customer = (localStorage.getItem('zq_customer') || '').trim();
+            const marketName = (localStorage.getItem('zq_market') || '').trim();
+
+            // 筐子数据
+            const quCount = getGlobalQuCount();
+            const quAmt = getGlobalQu();
+            const laiCount = getGlobalLaiCount();
+            const laiAmt = getGlobalLai();
 
             let billHTML = '';
             const hasData = fixedRows.length > 0 || otherItems.length > 0;
-            if (!hasData) {
+            // 是否有任何果品填了件数
+            const anyPieces = fixedRows.some(r => r.pieces !== null) || otherItems.some(r => r.pieces !== null);
+            // 列数：有件数列5列，否则4列
+            const totalCols = anyPieces ? 5 : 4;
+
+            if (!hasData && quCount === 0 && laiCount === 0) {
                 billHTML = '<div class="receipt-empty">暂无数据</div>';
             } else {
-                const piecesHead = anyPieces ? '<th>件数</th>' : '';
-                const piecesCell = (r) => anyPieces ? `<td>${r.pieces !== null ? r.pieces : '-'}</td>` : '';
-                const allRows = [
-                    ...fixedRows.map(r => `<tr>
+                let fruitTotal = 0;
+                const allRows = [];
+
+                // 件数列单元格（仅当 anyPieces 时显示）
+                const piecesCell = (r) => anyPieces ? `<td class="num-col">${r.pieces !== null ? r.pieces : '-'}</td>` : '';
+
+                // 水果行
+                fixedRows.forEach(r => {
+                    if (r.amt !== null) fruitTotal += r.amt;
+                    const priceCell = r.price !== null
+                        ? (r.special
+                            ? `<span class="price-wrap">${r.price}<span class="special-badge">特价</span></span>`
+                            : r.price)
+                        : '-';
+                    allRows.push(`<tr>
                         <td class="name-col">${r.label}</td>
                         ${piecesCell(r)}
-                        <td>${r.weight !== null ? r.weight : '-'}</td>
-                        <td>${r.price !== null ? r.price + (r.special ? ' <span class="special-badge">特价</span>' : '') : '-'}</td>
-                        <td>${fmt(r.amt)}</td>
-                        <td><strong>${fmt(r.sum)}</strong></td>
-                    </tr>`),
-                    ...otherItems.map(r => `<tr>
+                        <td class="num-col">${r.weight !== null ? r.weight : '-'}</td>
+                        <td class="num-col">${priceCell}</td>
+                        <td class="amt-col">${fmt(r.amt)}</td>
+                    </tr>`);
+                });
+
+                // 其他水果行
+                otherItems.forEach(r => {
+                    if (r.amt !== null) fruitTotal += r.amt;
+                    const priceCell = r.price !== null
+                        ? (r.special
+                            ? `<span class="price-wrap">${r.price}<span class="special-badge">特价</span></span>`
+                            : r.price)
+                        : '-';
+                    allRows.push(`<tr>
                         <td class="name-col">${r.name || '其他'}</td>
                         ${piecesCell(r)}
-                        <td>${r.weight !== null ? r.weight : '-'}</td>
-                        <td>${r.price !== null ? r.price + (r.special ? ' <span class="special-badge">特价</span>' : '') : '-'}</td>
-                        <td>${fmt(r.amt)}</td>
-                        <td><strong>${fmt(r.sum)}</strong></td>
-                    </tr>`)
-                ];
+                        <td class="num-col">${r.weight !== null ? r.weight : '-'}</td>
+                        <td class="num-col">${priceCell}</td>
+                        <td class="amt-col">${fmt(r.amt)}</td>
+                    </tr>`);
+                });
+
+                // 去框行
+                if (quCount > 0 && quAmt !== 0) {
+                    allRows.push(`<tr class="basket-info">
+                        <td colspan="${totalCols}">去框：${quCount}个（30/个）&emsp;&emsp;+${quAmt.toFixed(2)}</td>
+                    </tr>`);
+                }
+
+                // 来框行
+                if (laiCount > 0 && laiAmt !== 0) {
+                    allRows.push(`<tr class="basket-info">
+                        <td colspan="${totalCols}">来框：${laiCount}个&emsp;&emsp;-${laiAmt.toFixed(2)}</td>
+                    </tr>`);
+                }
+
+                // 货品合计行
+                const labelColspan = totalCols - 1;
+                allRows.push(`<tr class="total-row">
+                    <td colspan="${labelColspan}" class="total-label">货品合计</td>
+                    <td class="total-val">${fmt(fruitTotal)}</td>
+                </tr>`);
+
+                // 表头
+                const piecesHead = anyPieces ? '<th class="h-center">件数</th>' : '';
                 billHTML = `
                 <table class="receipt-table">
                     <thead><tr>
-                        <th>品种</th>${piecesHead}<th>重量(斤)</th><th>单价(元)</th><th>金额-蕉</th><th>总和</th>
+                        <th class="h-left">货品</th>${piecesHead}<th class="h-center">重量</th><th class="h-center">单价</th><th class="h-right">小计</th>
                     </tr></thead>
                     <tbody>${allRows.join('')}</tbody>
-                    <tfoot>
-                        ${(getGlobalQu() !== 0 && getGlobalQuCount() > 0) ? `
-                        <tr>
-                            <td colspan="${anyPieces ? 5 : 4}" style="text-align:right;padding-right:12px;">去框 ${getGlobalQuCount()} 个</td>
-                            <td style="padding-left:12px;">+ ${getGlobalQu().toFixed(2)}</td>
-                        </tr>` : ''}
-                        ${(getGlobalLai() !== 0 && getGlobalLaiCount() > 0) ? `
-                        <tr>
-                            <td colspan="${anyPieces ? 5 : 4}" style="text-align:right;padding-right:12px;">来框 ${getGlobalLaiCount()} 个</td>
-                            <td style="padding-left:12px;">- ${getGlobalLai().toFixed(2)}</td>
-                        </tr>` : ''}
-                        <tr class="total-row">
-                            <td colspan="${anyPieces ? 5 : 4}" style="text-align:right;">合计总金额</td>
-                            <td class="grand-total-val">${fmt(gt)} 元</td>
-                        </tr>
-                    </tfoot>
                 </table>`;
             }
 
+            // 客户行
             let customerHTML = '';
             if (customer) {
-                customerHTML = `<div class="receipt-customer">客户：${customer}</div>`;
+                customerHTML = `<span class="receipt-customer">客户：${customer}</span>`;
+            } else {
+                customerHTML = `<span class="receipt-customer"></span>`;
             }
-            const wechatHTML = `<div class="receipt-wechat">手机/微信：13502273897、13502278223</div>`;
+
+            // 市场名
+            const marketHTML = marketName ? `<div class="receipt-market-name">${marketName}</div>` : '';
+
+            // 押筐合计 = 去框 - 来框
+            const basketNet = quAmt - laiAmt;
+            let basketHTML = '';
+            if (quCount > 0 || laiCount > 0) {
+                const sign = basketNet >= 0 ? '+' : '';
+                basketHTML = `<div class="receipt-basket-total">押筐合计：${sign}${basketNet.toFixed(2)} 元</div>`;
+            }
 
             return `
             <div class="receipt">
+                ${marketHTML}
                 <div class="receipt-store-name">志强果业167号</div>
-                ${wechatHTML}
-                <div class="receipt-date">${dateStr}</div>
-                ${customerHTML}
+                <div class="receipt-info-row">
+                    ${customerHTML}
+                    <span class="receipt-code-date">${dateStr}</span>
+                </div>
                 <hr class="receipt-divider">
                 ${billHTML}
+                ${basketHTML}
+                <div class="receipt-grand-total">本单合计：${fmt(gt)} 元</div>
                 <hr class="receipt-divider">
-                <div class="receipt-footer">感谢惠顾 · 志强果业167号</div>
+                <div class="receipt-footer">
+                    地址：志强果业167号 &nbsp; <span class="footer-phone">手机：13502273897</span>
+                </div>
             </div>`;
         }
 
@@ -1670,8 +1768,8 @@
         // ===== Event: Generate Receipt =====
         function calcGrandTotal() {
             let gt = 0;
-            ROWS.forEach(row => { const r = calc(row); if (r.sum !== null) gt += r.sum; });
-            getOtherItems().forEach(r => { if (r.sum !== null) gt += r.sum; });
+            ROWS.forEach(row => { const r = calc(row); if (r.amt !== null) gt += r.amt; });
+            getOtherItems().forEach(r => { if (r.amt !== null) gt += r.amt; });
             return gt - getGlobalLai() + getGlobalQu();
         }
 

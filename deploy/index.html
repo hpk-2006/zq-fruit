@@ -1691,9 +1691,19 @@
             }
         }
 
+        function syncCustomerToTab() {
+            var order = getActiveOrder();
+            if (order) {
+                order.customer = customerInput.value.trim();
+                persistOrders();
+                renderTabs();
+            }
+        }
+
         function selectCustomer(name) {
             customerInput.value = name;
             hideDropdown();
+            syncCustomerToTab();
             update();
         }
 
@@ -1728,6 +1738,8 @@
         customerInput.addEventListener('blur', function() {
             // 延迟隐藏，让点击事件先触发
             setTimeout(function() { hideDropdown(); }, 250);
+            // 同步客户名到订单标签
+            syncCustomerToTab();
         });
 
         customerInput.addEventListener('keydown', function(e) {

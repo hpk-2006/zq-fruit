@@ -2392,7 +2392,7 @@
                 let frameHTML = '';
                 if (quCount > 0 || laiCount > 0) {
                     let frameRows = '';
-                    if (quCount > 0 && quAmt !== 0) {
+                    if (quCount > 0) {
                         const quMatch = Math.abs(quAmt - quCount * 30) < 0.001;
                         const quDetail = quMatch ? `${quCount}个 × 30` : `${quCount}个`;
                         frameRows += `<div class="receipt-frame-row">
@@ -2401,7 +2401,7 @@
                             <span class="frame-amt">+${quAmt.toFixed(2)}</span>
                         </div>`;
                     }
-                    if (laiCount > 0 && laiAmt !== 0) {
+                    if (laiCount > 0) {
                         frameRows += `<div class="receipt-frame-row">
                             <span class="frame-label">来框</span>
                             <span class="frame-detail">${laiCount}个</span>

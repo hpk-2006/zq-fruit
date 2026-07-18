@@ -981,6 +981,15 @@
             font-weight: 700;
             color: #555;
         }
+        /* Remark line above grand total */
+        .receipt-remark {
+            text-align: left;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 6px;
+            padding: 4px 4px;
+            border-top: 1px dashed #e0e0e0;
+        }
         /* Grand total — bottom right */
         .receipt-grand-total {
             text-align: right;
@@ -1268,6 +1277,14 @@
             </tr></tbody></table>
         </div>
 
+        <!-- 备注 -->
+        <div class="input-card" id="card-remark">
+            <div class="input-card-header">📝 备注</div>
+            <div style="padding: 8px 10px;">
+                <input type="text" placeholder="备注信息" id="inputRemark" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.95rem;">
+            </div>
+        </div>
+
         <!-- Grand total -->
         <div class="grand-total-bar">
             <span class="label">💰 合计总金额</span>
@@ -1334,7 +1351,7 @@
                 banana: { pieces: '', weight: '', price: getRememberedPrice('香蕉'), special: false },
                 'pink-banana': { pieces: '', weight: '', price: getRememberedPrice('粉蕉'), special: false },
                 otherItems: [],
-                lai: '', qu: '', laiCount: '', quCount: ''
+                lai: '', qu: '', laiCount: '', quCount: '', remark: ''
             };
         }
         // ===== Remembered prices =====
@@ -1365,6 +1382,7 @@
             order.qu = document.getElementById('inputQu').value;
             order.laiCount = document.getElementById('inputLaiCount').value;
             order.quCount = document.getElementById('inputQuCount').value;
+            order.remark = document.getElementById('inputRemark').value;
             order.customer = customerInput.value;
             order.date = dateInput.value;
         }
@@ -1385,6 +1403,7 @@
             document.getElementById('inputQu').value = order.qu || '';
             document.getElementById('inputLaiCount').value = order.laiCount || '';
             document.getElementById('inputQuCount').value = order.quCount || '';
+            document.getElementById('inputRemark').value = order.remark || '';
             customerInput.value = order.customer || '';
             dateInput.value = order.date || todayStr();
         }
@@ -2431,6 +2450,10 @@
             // 市场名
             const marketHTML = marketName ? `<div class="receipt-market-name">${marketName}</div>` : '';
 
+            // 备注
+            const remarkText = (document.getElementById('inputRemark').value || '').trim();
+            const remarkHTML = remarkText ? `<div class="receipt-remark">备注：${remarkText}</div>` : '';
+
             return `
             <div class="receipt">
                 ${marketHTML}
@@ -2441,6 +2464,7 @@
                 </div>
                 <hr class="receipt-divider">
                 ${billHTML}
+                ${remarkHTML}
                 <div class="receipt-grand-total">本单合计：${fmt(gt)} 元</div>
                 <hr class="receipt-divider">
                 <div class="receipt-footer">
@@ -2576,6 +2600,7 @@
             document.getElementById('inputQu').value = '';
             document.getElementById('inputLaiCount').value = '';
             document.getElementById('inputQuCount').value = '';
+            document.getElementById('inputRemark').value = '';
             // 清空客户名称
             customerInput.value = '';
             // 隐藏收据预览
@@ -2687,6 +2712,7 @@
                         first.qu = d._qu || '';
                         first.laiCount = d._laiCount || '';
                         first.quCount = d._quCount || '';
+                        first.remark = d._remark || '';
                     } catch(e) {}
                 }
                 orders = [first];

@@ -1720,17 +1720,35 @@
             '928车','790L车头','790L车尾','3616车头','3616车中','3616车尾',
             '3088车','838车','610车','江北','水口','609D6车','090L车','伟',
             '1533车','198老店','735S车','惠购','广汇隆','861ZG','869N车头',
-            '869N车尾','962C1','2FK32','4Q592','C025','897RJ'
+            '869N车尾','962C1','2FK32','4Q592','C025','897RJ',
+            '790L车','3S93车头','3S93车尾','汇农鲜麦地店','汇农鲜下板店',
+            '5Q03车','72919','316车','037车','656车','8081车'
         ];
+
+        // 客户名单版本号：CUSTOMER_DEFAULTS 新增条目时 +1，用于把新条目合并进已保存的名单
+        var CUSTOMER_LIST_VERSION = 1;
 
         function loadCustomerList() {
             var saved = localStorage.getItem('zq_customer_list');
             if (saved) {
-                try { return JSON.parse(saved); } catch(e) {}
+                try {
+                    var list = JSON.parse(saved);
+                    // 迁移：把代码里新增的默认客户补进本地已保存的名单（只补缺项，不删除已有）
+                    if (localStorage.getItem('zq_customer_list_ver') !== String(CUSTOMER_LIST_VERSION)) {
+                        var changed = false;
+                        CUSTOMER_DEFAULTS.forEach(function(d) {
+                            if (list.indexOf(d) === -1) { list.push(d); changed = true; }
+                        });
+                        if (changed) saveCustomerList(list);
+                        localStorage.setItem('zq_customer_list_ver', String(CUSTOMER_LIST_VERSION));
+                    }
+                    return list;
+                } catch(e) {}
             }
             // First time: initialize from defaults
             var list = CUSTOMER_DEFAULTS.slice();
             saveCustomerList(list);
+            localStorage.setItem('zq_customer_list_ver', String(CUSTOMER_LIST_VERSION));
             return list;
         }
 
@@ -3113,7 +3131,7 @@
             console.log('[PWA] 检测到旧 SW 控制中，跳过重新注册（将由浏览器自动更新）');
         }
 
-        navigator.serviceWorker.register('sw.js?v=4')
+        navigator.serviceWorker.register('sw.js?v=5')
             .then(function(reg) {
                 console.log('[PWA] Service Worker 注册成功', reg.scope);
                 // 检测更新

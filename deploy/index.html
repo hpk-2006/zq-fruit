@@ -945,6 +945,14 @@
             font-weight: 700;
             letter-spacing: 0.5px;
         }
+        /* Vehicle / license plate line */
+        .receipt-vehicle {
+            text-align: left;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 4px;
+        }
         .receipt-divider {
             border: none;
             border-top: 1px dashed #d0d0d0;
@@ -1410,6 +1418,19 @@
             </div>
         </div>
 
+        <!-- 车牌 -->
+        <div class="input-card" id="card-vehicle">
+            <div class="input-card-header">🚚 车牌</div>
+            <div style="padding: 8px 10px;">
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <input type="text" placeholder="车牌号" id="inputVehicle" style="flex:1;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.95rem;">
+                    <select id="vehiclePreset" style="max-width:110px;padding:6px 4px;border:1px solid #ddd;border-radius:6px;font-size:0.85rem;background:#fff;cursor:pointer;">
+                        <option value="">预设▼</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <!-- Remark Preset Manage Modal -->
         <div class="rm-overlay" id="rmOverlay">
             <div class="rm-box">
@@ -1491,7 +1512,7 @@
                 banana: { pieces: '', weight: '', price: getRememberedPrice('香蕉'), special: false },
                 'pink-banana': { pieces: '', weight: '', price: getRememberedPrice('粉蕉'), special: false },
                 otherItems: [],
-                lai: '', qu: '', laiCount: '', quCount: '', remark: ''
+                lai: '', qu: '', laiCount: '', quCount: '', remark: '', vehicle: ''
             };
         }
         // ===== Remembered prices =====
@@ -1523,6 +1544,7 @@
             order.laiCount = document.getElementById('inputLaiCount').value;
             order.quCount = document.getElementById('inputQuCount').value;
             order.remark = document.getElementById('inputRemark').value;
+            order.vehicle = document.getElementById('inputVehicle').value;
             order.customer = customerInput.value;
             order.date = dateInput.value;
         }
@@ -1544,6 +1566,7 @@
             document.getElementById('inputLaiCount').value = order.laiCount || '';
             document.getElementById('inputQuCount').value = order.quCount || '';
             document.getElementById('inputRemark').value = order.remark || '';
+            document.getElementById('inputVehicle').value = order.vehicle || '';
             customerInput.value = order.customer || '';
             dateInput.value = order.date || todayStr();
         }
@@ -1617,6 +1640,7 @@
                 first.qu = '';
                 first.laiCount = '';
                 first.quCount = '';
+                first.vehicle = '';
                 orders = [first];
                 activeOrderId = first.id;
                 loadOrderToForm(first);
@@ -2221,6 +2245,37 @@
             if (e.key === 'Enter') { e.preventDefault(); addRemarkPreset(); }
         });
 
+        // ===== Vehicle (车牌) Presets =====
+        var VEHICLE_PRESETS = [
+            '790L车', '3S93车头', '3S93车尾', '汇农鲜麦地店', '汇农鲜下板店',
+            '5Q03车', '72919', '316车', '037车', '656车', '8081车'
+        ];
+
+        function renderVehiclePresetDropdown() {
+            var sel = document.getElementById('vehiclePreset');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">预设▼</option>';
+            VEHICLE_PRESETS.forEach(function(p) {
+                sel.innerHTML += '<option value="' + p + '">' + escHtml(p) + '</option>';
+            });
+        }
+        renderVehiclePresetDropdown();
+
+        // Preset select change → fill vehicle input
+        document.getElementById('vehiclePreset').addEventListener('change', function() {
+            if (!this.value) return;
+            document.getElementById('inputVehicle').value = this.value;
+            saveFormToOrder();
+            persistOrders();
+            update();
+        });
+
+        // Manual entry → persist on blur
+        document.getElementById('inputVehicle').addEventListener('change', function() {
+            saveFormToOrder();
+            persistOrders();
+        });
+
         // ===== Product Name Autocomplete (shared dropdown for "其他" section) =====
         // ★ 在此数组中添加/修改商品名称（支持中文、英文、数字）
         var PRODUCT_LIST = [
@@ -2757,6 +2812,10 @@
             const remarkText = (document.getElementById('inputRemark').value || '').trim();
             const remarkHTML = remarkText ? `<div class="receipt-remark">备注：${remarkText}</div>` : '';
 
+            // 车牌
+            const vehicleText = (document.getElementById('inputVehicle').value || '').trim();
+            const vehicleHTML = vehicleText ? `<div class="receipt-vehicle">车牌：${vehicleText}</div>` : '';
+
             return `
             <div class="receipt">
                 ${marketHTML}
@@ -2765,6 +2824,7 @@
                     ${customerHTML}
                     <span class="receipt-code-date">${dateStr}</span>
                 </div>
+                ${vehicleHTML}
                 <hr class="receipt-divider">
                 ${billHTML}
                 ${remarkHTML}
@@ -2904,6 +2964,7 @@
             document.getElementById('inputLaiCount').value = '';
             document.getElementById('inputQuCount').value = '';
             document.getElementById('inputRemark').value = '';
+            document.getElementById('inputVehicle').value = '';
             // 清空客户名称
             customerInput.value = '';
             // 隐藏收据预览

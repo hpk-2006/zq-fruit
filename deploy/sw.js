@@ -1,5 +1,5 @@
 // Service Worker for 志强果业167号 - Offline billing tool
-const CACHE_VERSION = 5;
+const CACHE_VERSION = 6;
 const CACHE_NAME = 'zqgy-v' + CACHE_VERSION;
 const ASSETS = [
   './',

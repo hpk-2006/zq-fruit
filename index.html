@@ -2264,10 +2264,7 @@
         });
 
         // ===== Vehicle (车牌) Presets =====
-        var VEHICLE_PRESETS = [
-            '790L车', '3S93车头', '3S93车尾', '汇农鲜麦地店', '汇农鲜下板店',
-            '5Q03车', '72919', '316车', '037车', '656车', '8081车'
-        ];
+        var VEHICLE_PRESETS = [];
 
         function renderVehiclePresetDropdown() {
             var sel = document.getElementById('vehiclePreset');
@@ -3131,7 +3128,7 @@
             console.log('[PWA] 检测到旧 SW 控制中，跳过重新注册（将由浏览器自动更新）');
         }
 
-        navigator.serviceWorker.register('sw.js?v=5')
+        navigator.serviceWorker.register('sw.js?v=6')
             .then(function(reg) {
                 console.log('[PWA] Service Worker 注册成功', reg.scope);
                 // 检测更新
